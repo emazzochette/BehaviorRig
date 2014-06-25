@@ -1,5 +1,6 @@
 #pragma once
 
+
 namespace BehaviorRig {
 
 	using namespace System;
@@ -8,6 +9,8 @@ namespace BehaviorRig {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+
+	using namespace msclr::interop;
 
 	/// <summary>
 	/// Summary for Form1
@@ -56,6 +59,8 @@ namespace BehaviorRig {
 
 	private: Experiment *experiment;
 	private: Zaber^ zaber;
+
+
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify
@@ -141,7 +146,7 @@ namespace BehaviorRig {
 				 this->stopTrackButton->Enabled = true;
 
 				 //Start the asynchronous operation
-				 backgroundWorker1->RunWorkerAsync(200);
+				 backgroundWorker1->RunWorkerAsync(2);
 			 }
 	private: System::Void stopTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
 				 //Cancel the asynchronous operation
@@ -164,10 +169,21 @@ private: System::Void backgroundWorker1_DoWork(System::Object^  sender, System::
 				 e->Result = experiment->trackWorm(safe_cast<Int32>(e->Argument), worker, e);
 		 }
 private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
-			 	trackerStatusLabel->Text = e->UserState->ToString();
+
+			
+
+			 array<double>^ testArr = safe_cast<array<double>^>(e->UserState);
+			 trackerStatusLabel->Text = System::Convert::ToString( testArr[1]); 
+
+
+			 zaber->getStagePosition();
+			 experiment->WriteCurrentFrameData(testArr, zaber->posX, zaber->posY);
+
+			
+			
 				//experiment->exp.wormAnalysis.DrawResult(experiment->exp.dataOutputLocation + "image" + ".tiff");
 
-
+				
 		 }
 private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  sender, System::ComponentModel::RunWorkerCompletedEventArgs^  e) {
 			  //First, handle the case where an exception is thrown
@@ -192,6 +208,7 @@ private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  send
 				 trackerStatusLabel->Text = e->Result->ToString();
 			 }
 
+			  experiment->EndExperiment();
 			  //Enable the start button
 			  startTrackButton->Enabled = true;
 
@@ -199,16 +216,16 @@ private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  send
 			  stopTrackButton->Enabled = false;
 		 }
 private: System::Void setUpExperimentButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			// if(zaber->openPort()!=0){
-			//	 MessageBox::Show("The port could not be opened successfully") ;
-			//	return;
-			//}
-			//else{
-				//zaber->SetMoveUnit("Micrometer");
+			 if(zaber->openPort()!=0){
+				 MessageBox::Show("The port could not be opened successfully") ;
+				return;
+			}
+			else{
+				zaber->SetMoveUnit("Micrometer");
 				experiment->SetUpCamera();
 				experiment->DefineExpProperties();
 				experiment->SetUpDataOutput();
-			//}
+			}
 		 }
 };
 }

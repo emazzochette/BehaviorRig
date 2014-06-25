@@ -87,10 +87,14 @@ void Experiment::SetUpDataOutput(void){
 	exp.dataManagement.EndNode();
 
 
-	exp.dataManagement.CloseDoc();
+	//exp.dataManagement.CloseDoc();
 	
 
 	
+
+}
+void Experiment::WriteCurrentFrameData(array<double>^ wormDataArray, double xPosition, double yPosition){
+	exp.dataManagement.AppendWormFrameToDisk(wormDataArray, xPosition, yPosition); 
 
 }
 int Experiment::SetUpCamera(void){
@@ -109,22 +113,55 @@ int Experiment::trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 	 //the RunWorkerCompletedEventArgs.Cancelled will
 	 //not be set to true in your RunWorkerCompleted
 	 //event handler. This is a race condition.
-	if (worker->CancellationPending )
+	array<double>^ dataArray = gcnew array<double>{1,2,3,4,5,6,7,8,9};
+	//int i =1;
+	for (int i=1; i<n+1; i++)
 	{
-		e->Cancel = true;
-	}
-	else
-	{
-		//exp.imageControl.GetImage();
-		//exp.wormAnalysis.WormImages.OriginalImage = exp.imageControl.img;
-		//exp.wormAnalysis.FindWorm();
+	
+		if (worker->CancellationPending )
+		{
+			e->Cancel = true;
+		}
+		else
+		{
+		
 		//do some data output.
 		//exp.dataManagement.AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);
+		
+	
+			exp.imageControl.GetImage();
+			exp.wormAnalysis.WormImages.OriginalImage = exp.imageControl.img;
+			//exp.wormAnalysis.FindWorm();
+			exp.wormAnalysis.WormData.Target.x = 2;
+			exp.wormAnalysis.WormData.Target.y = 3;
+			exp.wormAnalysis.WormData.Head.x = 44;
+			exp.wormAnalysis.WormData.Head.y = 55;
+			exp.wormAnalysis.WormData.Tail.x = 666;
+			exp.wormAnalysis.WormData.Tail.y = 777;
 
-		worker->ReportProgress( 0 , "Tracker Running");
-		Thread::Sleep(5000);
+			dataArray[0] = 0; //Time Stamp
+			dataArray[1] = i; //Processed Frame Count
+			dataArray[2] = exp.imageControl.frameCount; //Frame Number
+			dataArray[3] = (double)exp.wormAnalysis.WormData.Target.x; //Target Position X
+			dataArray[4] = (double)exp.wormAnalysis.WormData.Target.y;
+			dataArray[5] = (double)exp.wormAnalysis.WormData.Head.x;
+			dataArray[6] = (double)exp.wormAnalysis.WormData.Head.y;
+			dataArray[7] = (double)exp.wormAnalysis.WormData.Tail.x;
+			dataArray[8] = (double)exp.wormAnalysis.WormData.Tail.y;
+
+			worker->ReportProgress( 0 , dataArray);
+			Thread::Sleep(2000);
+		}
+		
 		
 	}
 	return 0;
+
+}
+
+void Experiment::EndExperiment(void){
+
+	exp.dataManagement.CloseDoc();
+	exp.imageControl.StopLive();
 
 }

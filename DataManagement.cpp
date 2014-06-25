@@ -116,16 +116,19 @@ void DataManagement::SetUpWriteToDisk(const char* dirfilename, const char* outfi
 
 
 
-int DataManagement::AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time){//, WriteOut* DataWriter){
+//int DataManagement::AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time){//, WriteOut* DataWriter){
 
-	//FileStorage fs = DataWriter->fs;
-	DataWriter.fs << "{" ;
-	DataWriter.fs << "Frame number" << frameNumber;
-	DataWriter.fs << "Time Stamp" << time;
-	DataWriter.fs << "Stage Position" << "{" << "x" << xStagePos << "y" << yStagePos << "}";
-	DataWriter.fs << "Head" << WormData.Head;
-	DataWriter.fs << "Tail" << WormData.Tail;
-	DataWriter.fs << "Target" << WormData.Target;
+int DataManagement::AppendWormFrameToDisk(array<double>^ wormDataArray, double xPosition, double yPosition){//, double xStagePos, double yStagePos){
+
+	DataWriter.fs << "WormInfo" << "{" ;
+	//DataWriter.fs << "Time " <<  wormDataArray[0];
+	DataWriter.fs << "Processed frame number" <<  (int)wormDataArray[1];
+	DataWriter.fs << "Camera frame number" <<  (int)wormDataArray[2];
+	DataWriter.fs << "Target" << "{" << "x" <<  (int)wormDataArray[3] << "y" <<  (int)wormDataArray[4] << "}";
+	DataWriter.fs << "Head" << "{" << "x" <<  (int)wormDataArray[5] << "y" <<  (int)wormDataArray[6] << "}";
+	DataWriter.fs << "Tail" << "{" << "x" <<  (int)wormDataArray[7] << "y" <<  (int)wormDataArray[8] << "}";
+    DataWriter.fs << "Stage Position" << "{" << "x" << xPosition << "y" << yPosition << "}";
+	
 	DataWriter.fs << "}";
 
 	return 0;

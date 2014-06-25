@@ -34,7 +34,8 @@ public:
 	void SetUpWriteToDisk(const char*, const char*);//,  MemStorage*);
 
 	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures,  WriteOut*);
-	int AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);//, WriteOut* DataWriter);
+	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);//, WriteOut* DataWriter);
+	int AppendWormFrameToDisk(array<double>^, double, double);
 	int WriteStringToDisk(string, string);
 	int WriteDoubleToDisk(string, double);
 	int WritePointToDisk(string, Point);

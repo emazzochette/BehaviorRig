@@ -32,6 +32,7 @@ class Experiment{
 	public:
 	//Experiment(void);
 
+	
 	struct ExperimentStruct{
 		public:
 		string dataOutputLocation;
@@ -67,33 +68,53 @@ class Experiment{
 		WormAnalysis wormAnalysis;
 		ImageControl imageControl;
 		DataManagement dataManagement;
-
 		
-		//Location of worm head in real space
-		Point WormHeadRealSpace;
-		//Location of worm target in real space.
-		Point WormTargetRealSpace;
-		//Location of worm tail in real space.
-		Point WormTailRealSpace;
 		//Distace to move stage in real space - unit should be micrometer.
 		double moveStageXRealSpace;
 		double moveStageYRealSpace;
-		
+	
 		
 		//Image dimensions in real space
 		Point ImageDimensions;
+
+		
 
 
 		ExperimentStruct(void);
 	} exp;
 
+
+
+	//struct ExperimentData{
+	//	double timeStamp;
+	//	int processedFrameCount;
+	//	int cameraFrameNumber;
+	//	//Location of worm head in real space
+	//	Point WormHeadRealSpace;
+	//	//Location of worm target in real space.
+	//	Point WormTargetRealSpace;
+	//	//Location of worm tail in real space.
+	//	Point WormTailRealSpace;
+
+	////public:
+	////	Interface* clone() const { return new ExperimentData(*this); }
+	//	Object^ Copy()
+	//	{
+	//		return (ImportStatus)MemberwiseClone();
+	//	}
+
+
+	//} experimentData;
+
+
 	public:
 	
 	void DefineExpProperties(void);
 	void SetUpDataOutput(void);
+	void WriteCurrentFrameData(array<double>^, double, double);
 	int SetUpCamera(void);
 	int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e);
-
+	void EndExperiment(void);
 
 
 };
