@@ -33,6 +33,7 @@ DataManagement::WriteOutStruct::WriteOutStruct(void){
 	fs = NULL;
 	error = 0;
 	filename = NULL;
+	videoFilename = NULL;
 }
 
 
@@ -67,22 +68,11 @@ char* DataManagement::CreateFileName(const char* dir, const char* core, const ch
 //}
 void DataManagement::SetUpWriteToDisk(const char* dirfilename, const char* outfilename)//,  MemStorage* Mem)
 {
-	//Create new instance of write out object
-	//WriteOut* DataWriter = CreateDataWriter();
-
-
-	
+		
 	//Create filename
-	char* YAMLDataFileName = CreateFileName(dirfilename, outfilename,".yml");
-
-	//cv::FileStorage fs("C:\\Users\\Eileen Mazzochette\\Desktop\\TestFolder\\test.yml", cv::FileStorage::WRITE );
-	//fs << "write data" << 5;
-	//fs.release();
-	//	//fs.open(YAMLDataFileName, FileStorage::APPEND );
-	//if(~fs.isOpened()){
-
-	//	DataWriter.error = -1;
-	//}
+	char* YAMLDataFileName = CreateFileName(dirfilename, outfilename,".yaml");
+	char* VideoDataFileName = CreateFileName(dirfilename, outfilename, ".avi");
+	//char* ImageDataFileNAme = CreateFileName(dirfilename, outfilename, ".tiff");
 
 	//Open YAML Data File for writing //
 	DataWriter.fs.open(YAMLDataFileName, FileStorage::WRITE );
@@ -92,13 +82,9 @@ void DataManagement::SetUpWriteToDisk(const char* dirfilename, const char* outfi
 		DataWriter.error = -1;
 	}
 	
-
-	//if (DataWriter.error < 0) return;
-
 	
 	//Write header for YAML data file
 	DataWriter.fs << "Behavior Rig" << 2;
-
 	DataWriter.fs << "Microsystems Lab Stanford University" << 2014;
 
 	//Write local time
@@ -110,6 +96,7 @@ void DataManagement::SetUpWriteToDisk(const char* dirfilename, const char* outfi
 	
 
 	DataWriter.filename = YAMLDataFileName;
+	DataWriter.videoFilename = VideoDataFileName;
 	
 	return;
 }

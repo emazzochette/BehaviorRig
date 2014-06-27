@@ -12,7 +12,7 @@ using namespace std;
 
 //ImageControl::ImageControl(void)
 //{
-//	
+//
 //}
 
 void ImageControl::StartCamera(void)
@@ -36,6 +36,12 @@ void ImageControl::StartCamera(void)
 		grabber.setProperty(CameraControl_Exposure, false);
 		long ExposureValue = -6;
 		grabber.setProperty(CameraControl_Exposure,ExposureValue);
+		
+		//enable overlay for camera.
+		grabber.getOverlay()->setEnable(true);
+		grabber.getOverlay()->setColorMode(OverlayBitmap::eCOLOR);
+		grabber.getOverlay()->setDropOutColor(RGB(0,255,255));
+
 		/*
 		tCodecListPtr pCodecs = Codec::getAvailableCodecs();
  
@@ -136,3 +142,8 @@ void ImageControl::StopRecord(void)
 	//}
 }
 
+void ImageControl::SetImageDimensions(void){
+	 xImageDimensions = 1024*UmPerPixel();
+	 yImageDimensions = 768*UmPerPixel();
+
+}

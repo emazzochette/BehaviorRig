@@ -333,7 +333,7 @@ void Zaber::WaitForReply(Byte expectDevice, Byte expectCommand)
 
 int Zaber::convertToMicrosteps(double distance, char* unit){
 	int out = 0;
-	double conversion = 0.15625e-6;
+	double conversion = 0.15625e-6; // specific to stage "Microstep Size (Device Resolution)"
 	if(strcmp(unit,"centimeter") == 0)
 	{
 		  out = (distance*(1e-2)*(1/conversion));

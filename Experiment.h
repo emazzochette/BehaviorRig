@@ -31,7 +31,10 @@ class Experiment{
 
 	public:
 	//Experiment(void);
-
+	struct doublePoint{
+			double x;
+			double y;
+		};
 	
 	struct ExperimentStruct{
 		public:
@@ -56,7 +59,8 @@ class Experiment{
 			double stiffness;
 			double sensitivity;
 			//Location of Cantilever in real space
-			Point CantileverRealSpace;
+			double xCantileverRealSpace;
+			double yCantileverRealSpace;
 			Point CantileverImageSpace; // = (621, 365); //in pixel space.  
 		} cantileverProperties;
 
@@ -70,41 +74,20 @@ class Experiment{
 		DataManagement dataManagement;
 		
 		//Distace to move stage in real space - unit should be micrometer.
-		double moveStageXRealSpace;
-		double moveStageYRealSpace;
+		doublePoint WormHeadRealSpace, WormTailRealSpace, WormTargetRealSpace, moveStageRealSpace;
+		
+		double timeStamp;
+		int processedFrameCount;
+		int cameraFrameNumber;
 	
 		
-		//Image dimensions in real space
-		Point ImageDimensions;
 
-		
-
+		VideoWriter videoWriter;
 
 		ExperimentStruct(void);
 	} exp;
 
 
-
-	//struct ExperimentData{
-	//	double timeStamp;
-	//	int processedFrameCount;
-	//	int cameraFrameNumber;
-	//	//Location of worm head in real space
-	//	Point WormHeadRealSpace;
-	//	//Location of worm target in real space.
-	//	Point WormTargetRealSpace;
-	//	//Location of worm tail in real space.
-	//	Point WormTailRealSpace;
-
-	////public:
-	////	Interface* clone() const { return new ExperimentData(*this); }
-	//	Object^ Copy()
-	//	{
-	//		return (ImportStatus)MemberwiseClone();
-	//	}
-
-
-	//} experimentData;
 
 
 	public:
@@ -114,6 +97,7 @@ class Experiment{
 	void WriteCurrentFrameData(array<double>^, double, double);
 	int SetUpCamera(void);
 	int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e);
+	doublePoint DetermineStageMovement(double, double);
 	void EndExperiment(void);
 
 

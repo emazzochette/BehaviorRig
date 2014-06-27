@@ -18,7 +18,9 @@ public:
 	//tMediaStreamSinkPtr pSink;
 	cv::Mat img;
 	unsigned int frameCount;
-
+	//Image dimensions in real space
+	double xImageDimensions;
+	double yImageDimensions;
 
 public:
 	void StartCamera(void);
@@ -28,11 +30,12 @@ public:
 	void SaveCurrentFrame(string FileName);
 	void StartRecord(void);
 	void StopRecord(void);
+	void SetImageDimensions(void);
 
 	static double PixelsPerUm()
 		{ return 0.567369167; }
 	static double UmPerPixel()
-		{ return 1.7633422; }
+		{ return 1.0/PixelsPerUm(); }
 
 
 

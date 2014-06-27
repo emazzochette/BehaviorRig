@@ -146,7 +146,7 @@ namespace BehaviorRig {
 				 this->stopTrackButton->Enabled = true;
 
 				 //Start the asynchronous operation
-				 backgroundWorker1->RunWorkerAsync(2);
+				 backgroundWorker1->RunWorkerAsync(30);
 			 }
 	private: System::Void stopTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
 				 //Cancel the asynchronous operation
@@ -166,7 +166,8 @@ private: System::Void backgroundWorker1_DoWork(System::Object^  sender, System::
 				 //to the Result property of the DoWorkEventErgs
 				 //object. This will be available to the 
 				 //RunWorkerCompleted eventhandler.
-				 e->Result = experiment->trackWorm(safe_cast<Int32>(e->Argument), worker, e);
+				 //e->Result = experiment->trackWorm(safe_cast<Int32>(e->Argument), worker, e);
+				 e->Result = trackWorm(safe_cast<Int32>(e->Argument), worker, e);
 		 }
 private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
 
@@ -175,13 +176,34 @@ private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender,
 			 array<double>^ testArr = safe_cast<array<double>^>(e->UserState);
 			 trackerStatusLabel->Text = System::Convert::ToString( testArr[1]); 
 
-
-			 zaber->getStagePosition();
+			 //Deal with data:
+			 //experiment->exp.wormAnalysis.DrawResult(experiment->exp.dataOutputLocation + "image" + ".tiff");
+			 //zaber->getStagePosition();
 			 experiment->WriteCurrentFrameData(testArr, zaber->posX, zaber->posY);
+			
+			/* experiment->exp.imageControl.grabber.getOverlay()->fill(experiment->exp.imageControl.grabber.getOverlay()->getDropOutColor());
+			 RECT rectangle;
+			 rectangle.left = (int)testArr[3]-10;
+			 rectangle.right = (int)testArr[3]+10;
+			 rectangle.top = (int)testArr[4]-10;
+			 rectangle.bottom = (int)testArr[4]+10; 
+			 experiment->exp.imageControl.grabber.getOverlay()->drawFrameEllipse( RGB(255,0,0), rectangle);
+		*/
+			 //Move Stage:
+			 //zaber->moveStageRelative(testArr[9],  testArr[10]);
 
 			
+
+			 experiment->exp.imageControl.grabber.getOverlay()->fill(experiment->exp.imageControl.grabber.getOverlay()->getDropOutColor());
+			 RECT rectangle;
+			 rectangle.left = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.x-5;
+			 rectangle.right = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.x+5;
+			 rectangle.top = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.y-5;
+			 rectangle.bottom = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.y+5; 
+			 experiment->exp.imageControl.grabber.getOverlay()->drawFrameEllipse( RGB(255,0,0), rectangle);
+				
 			
-				//experiment->exp.wormAnalysis.DrawResult(experiment->exp.dataOutputLocation + "image" + ".tiff");
+			
 
 				
 		 }
@@ -227,6 +249,66 @@ private: System::Void setUpExperimentButton_Click(System::Object^  sender, Syste
 				experiment->SetUpDataOutput();
 			}
 		 }
+
+private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
+			  //Abort the operation if the user has cancelled.
+	 //Note that a call to CancelAsync may have set
+	 //CancellationPending to true just after the 
+	 //last invocation of this method exits, so this
+	 //code will not have the oppotunity to set the 
+	 //DoWorkEventArgs.Cancel flag to true. This means
+	 //the RunWorkerCompletedEventArgs.Cancelled will
+	 //not be set to true in your RunWorkerCompleted
+	 //event handler. This is a race condition.
+	Experiment::doublePoint LocalMoveStage;
+	array<double>^ dataArray = gcnew array<double>{1,2,3,4,5,6,7,8,9,10,11,12,13};
+	
+	for (int i=1; i<n+1; i++)
+	{
+	
+		if (worker->CancellationPending )
+		{
+			e->Cancel = true;
+		}
+		else
+		{
+		
+			experiment->exp.imageControl.GetImage();
+			experiment->exp.wormAnalysis.WormImages.OriginalImage = experiment->exp.imageControl.img;
+			experiment->exp.wormAnalysis.FindWorm();
+		
+			experiment->exp.wormAnalysis.WormData.Target.x = experiment->exp.wormAnalysis.WormData.Head.x ;
+			experiment->exp.wormAnalysis.WormData.Target.y = experiment->exp.wormAnalysis.WormData.Head.y;
+			
+			LocalMoveStage = experiment->DetermineStageMovement(experiment->exp.wormAnalysis.WormData.Target.x, experiment->exp.wormAnalysis.WormData.Target.y);
+			zaber->getStagePosition();
+			zaber->moveStageRelative(LocalMoveStage.x,  LocalMoveStage.y);
+			
+			experiment->exp.wormAnalysis.DrawResult();
+			experiment->exp.videoWriter << experiment->exp.wormAnalysis.WormData.ImageToPrint;
+
+			dataArray[0] = 0; //Time Stamp
+			dataArray[1] = i; //Processed Frame Count
+			dataArray[2] = experiment->exp.imageControl.frameCount; //Frame Number
+			dataArray[3] = (double)experiment->exp.wormAnalysis.WormData.Target.x; //Target Position X
+			dataArray[4] = (double)experiment->exp.wormAnalysis.WormData.Target.y;
+			dataArray[5] = (double)experiment->exp.wormAnalysis.WormData.Head.x;
+			dataArray[6] = (double)experiment->exp.wormAnalysis.WormData.Head.y;
+			dataArray[7] = (double)experiment->exp.wormAnalysis.WormData.Tail.x;
+			dataArray[8] = (double)experiment->exp.wormAnalysis.WormData.Tail.y;
+			dataArray[9] = LocalMoveStage.x;
+			dataArray[10] = LocalMoveStage.y;
+			dataArray[11] = zaber->posX;
+			dataArray[12] = zaber->posY;
+
+			worker->ReportProgress( 0 , dataArray->Clone());
+			//Thread::Sleep(1000);
+		}
+		
+		
+	}
+	return 0;
+	}
 };
 }
 

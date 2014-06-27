@@ -20,6 +20,9 @@ using namespace std;
 class WormAnalysis{
 	
 public:
+
+	
+
 	struct WormImageStructures{
 		Mat OriginalImage;
 		Mat ThresholdImage;
@@ -117,6 +120,6 @@ private:
 
 public:	
 	void FindWorm(void);
-	void DrawResult(string);
+	void DrawResult(void);
 	void ShowImage(void);
 };

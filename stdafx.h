@@ -23,3 +23,4 @@
 //Standard header files:
 #include <string>
 
+#include <atltypes.h>

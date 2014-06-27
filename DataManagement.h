@@ -22,6 +22,7 @@ public:
 	struct WriteOutStruct{
 		FileStorage fs;
 		char* filename;
+		char* videoFilename;
 		int error;
 
 		WriteOutStruct(void);

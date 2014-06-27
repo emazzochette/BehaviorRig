@@ -179,8 +179,6 @@ void WormAnalysis::FindWormTailInsideRange(void){
 
 	WormData.Tail = WormData.Worm[WormData.TailIndex];	
 }
-
-
 void WormAnalysis::FindWormHead(void){
 	//Parameters for head, tail search
 	vector<int> ForVec (2);
@@ -267,7 +265,6 @@ void WormAnalysis::FindWormHead(void){
 	
 	WormData.Head = WormData.Worm[WormData.HeadIndex];
 }
-
 void WormAnalysis::HeadTailCheck(void){
 
 	int Holder;
@@ -283,8 +280,6 @@ void WormAnalysis::HeadTailCheck(void){
 
 
 }
-
-
 void WormAnalysis::WormSegmentation(void){
 	WormSeg.numPoints = WormData.Worm.size();
 	WormSeg.WormVec1.clear();
@@ -345,8 +340,6 @@ void WormAnalysis::WormSegmentation(void){
 		
 	}
 }
-
-
 void WormAnalysis::WormSegmentation2(void){
 		//SEGMENTATION
 	//Parameters for segmentation
@@ -459,10 +452,6 @@ void WormAnalysis::WormSegmentation2(void){
 		circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j][1]], 3, color, 1, 8, 0);
 	}
 }
-
-
-
-
 void WormAnalysis::FindSkeleton(void){
 	//First Point on skeleton is the head.
 	WormData.Skeleton.clear();
@@ -515,7 +504,7 @@ void WormAnalysis::FindSkeleton(void){
 
 	}
 }
-void WormAnalysis::DrawResult(string SaveFileName){
+void WormAnalysis::DrawResult(void){
 	
 	//WormData.ImageToPrint = Mat::zeros(WormImages.OriginalImage.rows, WormImages.OriginalImage.cols, CV_8UC3);
 	//WormData.ImageToPrint = WormImages.OriginalImage;
@@ -530,8 +519,12 @@ void WormAnalysis::DrawResult(string SaveFileName){
     }
 	
 
-	//PRINT TAIL
+	//Print cantilever
 	Scalar color(0,0,255);
+	circle(WormData.ImageToPrint, Point(621, 365),5,color,2,8,0);
+
+	//PRINT TAIL
+	
 	circle(WormData.ImageToPrint, WormData.Worm[WormData.TailIndex], 7, color, 2, 8, 0);
 
 
@@ -561,12 +554,15 @@ void WormAnalysis::DrawResult(string SaveFileName){
 	//PRINT TARGET
 	//circle(WormData.ImageToPrint, WormData.Target, 10, color, 1, 8, 0);
 
-	namedWindow("Display window", CV_WINDOW_AUTOSIZE);
+
+	////Print to Screen
+	/*namedWindow("Display window", CV_WINDOW_AUTOSIZE);
 	imshow("Display window", WormData.ImageToPrint);
-	cvWaitKey(3);
+	cvWaitKey(3);*/
 
-	imwrite(SaveFileName, WormData.ImageToPrint);
-
+	//Write to disc
+	//imwrite(SaveFileName, WormData.ImageToPrint);
+	//videoWriter << WormData.ImageToPrint;
 
 }
 //Highest Level Function:
