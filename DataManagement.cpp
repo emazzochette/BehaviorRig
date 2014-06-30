@@ -122,6 +122,7 @@ int DataManagement::AppendWormFrameToDisk(array<double>^ wormDataArray, double x
 
 }
 
+
 int DataManagement::WriteStringToDisk(string LineToWrite, string DataToWrite){
 	DataWriter.fs << LineToWrite << DataToWrite;
 	return 0;

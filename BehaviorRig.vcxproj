@@ -101,6 +101,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="tictoc.cpp" />
+    <ClCompile Include="Timing.cpp" />
     <ClCompile Include="WormAnalysis.cpp" />
     <ClCompile Include="Zaber.cpp" />
   </ItemGroup>
@@ -113,6 +115,8 @@
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="tictoc.h" />
+    <ClInclude Include="Timing.h" />
     <ClInclude Include="WormAnalysis.h" />
     <ClInclude Include="Zaber.h" />
   </ItemGroup>

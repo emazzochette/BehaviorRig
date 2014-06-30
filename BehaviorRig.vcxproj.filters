@@ -45,6 +45,12 @@
     <ClCompile Include="Zaber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tictoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -69,6 +75,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Zaber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tictoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

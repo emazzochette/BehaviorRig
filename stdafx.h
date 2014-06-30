@@ -19,8 +19,10 @@
 #include "WormAnalysis.h"
 #include "Zaber.h"
 #include "DataManagement.h"
+#include "tictoc.h"
 
 //Standard header files:
 #include <string>
+//#include <ctime>
 
 #include <atltypes.h>

@@ -27,15 +27,18 @@ void ImageControl::StartCamera(void)
         sink->setSnapMode( false );
         grabber.setSinkType( sink );
 
-        
+		
         // Show the device selection dialog
         grabber.showDevicePage();
 
-		long val = grabber.getProperty(CameraControl_Exposure);
+		grabber.setVideoFormat("Y800 (96x96-512x384) [Binning 2x]");
+        
+		
+		/*long val = grabber.getProperty(CameraControl_Exposure);
 		tsPropertyRange ExposureRange = grabber.getPropertyRange(CameraControl_Exposure);
 		grabber.setProperty(CameraControl_Exposure, false);
 		long ExposureValue = -6;
-		grabber.setProperty(CameraControl_Exposure,ExposureValue);
+		grabber.setProperty(CameraControl_Exposure,ExposureValue);*/
 		
 		//enable overlay for camera.
 		grabber.getOverlay()->setEnable(true);
@@ -142,8 +145,9 @@ void ImageControl::StopRecord(void)
 	//}
 }
 
-void ImageControl::SetImageDimensions(void){
-	 xImageDimensions = 1024*UmPerPixel();
-	 yImageDimensions = 768*UmPerPixel();
+void ImageControl::SetImageDimensions(double scale){
+	 
+	 xImageDimensions = (int)scale*1024*UmPerPixel();
+	 yImageDimensions = (int)scale*768*UmPerPixel();
 
 }

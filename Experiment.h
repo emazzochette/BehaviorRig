@@ -80,10 +80,16 @@ class Experiment{
 		int processedFrameCount;
 		int cameraFrameNumber;
 	
-		
+		string inputMode;
 
 		VideoWriter videoWriter;
+		VideoCapture videoCapture;
+		string videoFilename;
+		Mat currentVideoFrame;
 
+		double imageScale;
+
+	
 		ExperimentStruct(void);
 	} exp;
 
@@ -92,8 +98,13 @@ class Experiment{
 
 	public:
 	
+	int OpenVideo(string);
+	int getImage(string);
+
+	int getNextVideoFrame(void);
 	void DefineExpProperties(void);
 	void SetUpDataOutput(void);
+	int WriteTimingDataToDisk(void);
 	void WriteCurrentFrameData(array<double>^, double, double);
 	int SetUpCamera(void);
 	int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e);

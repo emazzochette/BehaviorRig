@@ -13,9 +13,14 @@
 #include <complex>
 #include <ctime>
 #include <string.h>
+#include <map>
 
 #include "WormAnalysis.h"
 #include "DataManagement.h"
+
+
+using namespace std;
+using namespace TICTOC;
 
 using namespace System;
 using namespace System::IO::Ports;
@@ -28,10 +33,41 @@ using namespace System::Text;
 	//ExperimentStruct;
 //}
 Experiment::ExperimentStruct::ExperimentStruct(void){
-	 cantileverProperties.CantileverImageSpace.x = 621;
-	 cantileverProperties.CantileverImageSpace.y = 365;
+	// mageScale = 0.75;
+	 
+	// cantileverProperties.CantileverImageSpace.x= 621*imageScale ;
+	// cantileverProperties.CantileverImageSpace.y = 365*imageScale;
+
+
+	 
 };
 
+int Experiment::OpenVideo(string videoFilename){
+
+	exp.videoCapture.open(videoFilename);
+	if(exp.videoCapture.isOpened())
+		return 0;
+	else
+		return -1;
+
+}
+
+int Experiment::getImage(string imageFilename){
+	exp.currentVideoFrame = imread(imageFilename);
+	if (exp.currentVideoFrame.empty())
+		return -1;
+	else
+		return 0;
+}
+
+int Experiment::getNextVideoFrame(void){
+
+	exp.videoCapture >> exp.currentVideoFrame;
+	if (exp.currentVideoFrame.empty())
+		return -1;
+	else
+		return 0;
+}
 void Experiment::DefineExpProperties(void){
 		exp.dataOutputLocation = "C:\\Users\\Eileen Mazzochette\\Desktop\\TestFolder\\";
 		exp.experimentMode = "ForceClamp";
@@ -52,6 +88,9 @@ void Experiment::DefineExpProperties(void){
 
 		exp.ambientParameters.temperature = 22;
 		exp.ambientParameters.humidity = 25;
+
+		exp.cantileverProperties.CantileverImageSpace.x = 621*exp.imageScale;
+		exp.cantileverProperties.CantileverImageSpace.y = 365*exp.imageScale;
 }
 void Experiment::SetUpDataOutput(void){
 
@@ -86,10 +125,10 @@ void Experiment::SetUpDataOutput(void){
 
 	
 	//Set up video writer
-	Size frameSize = Size(1024, 768);
+	Size frameSize = Size(1024*exp.imageScale, 768*exp.imageScale);
 	string FilenameTest = std::string(exp.dataManagement.DataWriter.videoFilename);
 	double FPS = 1;
-	int codec = -1; //CV_FOURCC('M', 'P', 'E', 'G');
+	int codec = -1; 
 	exp.videoWriter.open(FilenameTest, codec, FPS, frameSize, true);
 	
 	if (exp.videoWriter.isOpened())
@@ -98,6 +137,32 @@ void Experiment::SetUpDataOutput(void){
 	
 
 }
+
+int Experiment::WriteTimingDataToDisk(void){
+	//std::map <std::string, struct TICTOC::_tictoc_data> tt = TICTOC::timer().generateDataOutput();
+	//map<string, TICTOC::_tictoc_data>::iterator it;
+	//const pair<string, _tictoc_data> *p;
+ //   for (it = tt.begin(); it != tt.end(); ++it) {
+ //       
+	//	exp.dataManagement.StartNode("TimingInfo");
+	//	//exp.dataManagement.WriteStringToDisk("name", it->first);
+	//	//exp.dataManagement.WriteDoubleToDisk("ncalls", it.second.ncalls);
+	//	exp.dataManagement.EndNode();
+
+
+	///*	DataWriter.fs << "TimingInfo" << "{" ;
+	//	DataWriter.fs  << "  name: " << it.first;
+	//	DataWriter.fs  << "  ncalls: " << it.second.ncalls;
+	//	DataWriter.fs  << "  totaltime: " << (1.0 * it.second.totaltime) / tictoc::TICKS_PER_SEC ;
+	//	DataWriter.fs  << "  maxtime: " << (1.0 * it.second.maxtime) / tictoc::TICKS_PER_SEC ;
+	//	DataWriter.fs  << "  mintime: " << (1.0 * it.second.mintime) / tictoc::TICKS_PER_SEC ;
+	//	DataWriter.fs  << "  avg time: " << (1.0 * itp.second.totaltime) / (p.second.ncalls *tictoc::TICKS_PER_SEC);
+	//	DataWriter.fs  << "  numblowntics: " << it.second.numblowntics;
+	//	DataWriter.fs << "}";*/
+ //       
+ //   }
+	return 0;
+}
 void Experiment::WriteCurrentFrameData(array<double>^ wormDataArray, double xPosition, double yPosition){
 	exp.dataManagement.AppendWormFrameToDisk(wormDataArray, xPosition, yPosition); 
 
@@ -105,7 +170,7 @@ void Experiment::WriteCurrentFrameData(array<double>^ wormDataArray, double xPos
 int Experiment::SetUpCamera(void){
 	exp.imageControl.StartCamera();
 	exp.imageControl.StartLive();
-	exp.imageControl.SetImageDimensions();
+	exp.imageControl.SetImageDimensions(exp.imageScale);
 	return 0;
 
 }
@@ -183,21 +248,23 @@ Experiment::doublePoint Experiment::DetermineStageMovement(double xTargetImageSp
 		////Determine how far stage has to move
 		doublePoint MoveStage;
 
-		MoveStage.x = -(exp.cantileverProperties.CantileverImageSpace.x - xTargetImageSpace)*exp.imageControl.UmPerPixel();
-		MoveStage.y = (exp.cantileverProperties.CantileverImageSpace.y - yTargetImageSpace)*exp.imageControl.UmPerPixel();
+		MoveStage.x = -(exp.cantileverProperties.CantileverImageSpace.x - xTargetImageSpace)*(exp.imageControl.UmPerPixel()/exp.imageScale);
+		MoveStage.y = (exp.cantileverProperties.CantileverImageSpace.y - yTargetImageSpace)*(exp.imageControl.UmPerPixel()/exp.imageScale);
 
 		//Translate stage movement to now previous image
 		//exp.wormAnalysis.PreviousWormData.Head.x = (int)((exp.xWormHeadRealSpace - exp.moveStageXRealSpace)*exp.imageControl.PixelsPerUm());
 		//exp.wormAnalysis.PreviousWormData.Head.y = (int)((exp.yWormHeadRealSpace - exp.moveStageYRealSpace)*exp.imageControl.PixelsPerUm());
 		//exp.wormAnalysis.PreviousWormData.Tail.x = (int)((exp.xWormTailRealSpace - exp.moveStageXRealSpace)*exp.imageControl.PixelsPerUm());
 		//exp.wormAnalysis.PreviousWormData.Tail.y = (int)((exp.yWormTailRealSpace - exp.moveStageYRealSpace)*exp.imageControl.PixelsPerUm());
-		exp.wormAnalysis.PreviousWormData.Target.x = (int)(xTargetImageSpace - (MoveStage.x*exp.imageControl.PixelsPerUm()));
-		exp.wormAnalysis.PreviousWormData.Target.y = (int)(yTargetImageSpace + (MoveStage.y*exp.imageControl.PixelsPerUm()));
+		exp.wormAnalysis.PreviousWormData.Target.x = (int)(xTargetImageSpace - (MoveStage.x*(exp.imageScale/exp.imageControl.PixelsPerUm())));
+		exp.wormAnalysis.PreviousWormData.Target.y = (int)(yTargetImageSpace + (MoveStage.y*(exp.imageScale/exp.imageControl.PixelsPerUm())));
 		
 		return MoveStage;
 }
 
 void Experiment::EndExperiment(void){
+
+	exp.dataManagement.WriteStringToDisk("TimingData", TICTOC::timer().generateReportCstr());
 
 	exp.dataManagement.CloseDoc();
 	exp.videoWriter.release();

@@ -160,26 +160,47 @@ void Zaber::moveStageAbsolute(double distanceX, double distanceY)
 
 void Zaber::moveStageRelative(double distanceX, double distanceY)//, char* unit)
 {
+
+	int distance;
+
 	//Convert absolute distance into microsteps
+	//TICTOC::timer().tic("StageMovementConvertToMicroSteps");
 	microstepsX = (unsigned int) convertToMicrosteps(distanceX, unitMove);
 	microstepsY = (unsigned int) convertToMicrosteps(distanceY, unitMove);
-	
+	//TICTOC::timer().toc("StageMovementConvertToMicroSteps");
+
 	//Send data to move in X direction
+	
 	device = 1;
 	command = CMD_MOVE_RELATIVE;
 	data = microstepsX;
+	TICTOC::timer().tic("StageMovementSendXCommand");
 	SendCommand();
+	TICTOC::timer().toc("StageMovementSendXCommand");
+	TICTOC::timer().tic("StageMovementWaitXCommand");
 	WaitForReply(1, CMD_MOVE_RELATIVE);
+	TICTOC::timer().toc("StageMovementWaitXCommand");
+	distance = data;
+	posX = convertFromMicrosteps(distance, unitMove);
 	
 	//Send Data to move in Y direction
+	
 	device = 2;
 	command = CMD_MOVE_RELATIVE;
 	data = microstepsY;
+	TICTOC::timer().tic("StageMovementSendYCommand");
 	SendCommand();
+	TICTOC::timer().toc("StageMovementSendYCommand");
+	TICTOC::timer().tic("StageMovementWaitYCommand");
 	WaitForReply(2, CMD_MOVE_RELATIVE);
+	TICTOC::timer().toc("StageMovementWaitYCommand");
+	distance = data;
+	posY = convertFromMicrosteps(distance, unitMove);
 
 	//Report stage position
-	getStagePosition();
+	TICTOC::timer().tic("StageMovementGetStagePosition");
+	//getStagePosition();
+	TICTOC::timer().toc("StageMovementGetStagePosition");
 	
 }
 

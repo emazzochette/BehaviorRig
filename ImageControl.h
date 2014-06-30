@@ -30,7 +30,7 @@ public:
 	void SaveCurrentFrame(string FileName);
 	void StartRecord(void);
 	void StopRecord(void);
-	void SetImageDimensions(void);
+	void SetImageDimensions(double);
 
 	static double PixelsPerUm()
 		{ return 0.567369167; }

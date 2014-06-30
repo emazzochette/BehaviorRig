@@ -22,9 +22,11 @@ class WormAnalysis{
 public:
 
 	
+	double imageResizeScale;
 
 	struct WormImageStructures{
 		Mat OriginalImage;
+		Mat OriginalImageResize;
 		Mat ThresholdImage;
 		Mat SmoothImage;
 	} WormImages;
@@ -34,7 +36,7 @@ public:
 		Vector<Point> Worm;
 		int TailIndex;
 		int HeadIndex;
-		int Segments [500][2];
+		vector<Point> Segments;// [500][2];
 		bool FirstImageFlag;
 		Mat ImageToPrint;
 		Vector<Point> Skeleton;// [50000];
@@ -121,5 +123,5 @@ private:
 public:	
 	void FindWorm(void);
 	void DrawResult(void);
-	void ShowImage(void);
+	void ShowImage(Mat);
 };

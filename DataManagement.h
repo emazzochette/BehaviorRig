@@ -29,6 +29,8 @@ public:
 	} DataWriter;
 
 
+	vector<Mat> videoBuffer;
+
 	//DataManagement(void);
 	char* CreateFileName(const char* , const char*, const char* );
 	//void DestroyFileName(char**);
