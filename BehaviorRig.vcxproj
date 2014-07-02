@@ -114,6 +114,7 @@
     <ClInclude Include="Experiment.h" />
     <ClInclude Include="ImageControl.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="safe_queue.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tictoc.h" />
     <ClInclude Include="Timing.h" />

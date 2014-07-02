@@ -14,6 +14,7 @@ public ref class Zaber{
 		double posZ; // reports z-axis position
 		char* unitMove; // user specified unit of movement and reporting. Options are: "centimeter", "millimeter", "micrometer", "microsteps"
 		SerialPort^ port; // uses .NET 3.5 Serial port communication tool
+		//SerialPort^ portX
 
 	private:
 		//Information to be sent and received over the serial port
@@ -37,6 +38,7 @@ public ref class Zaber{
 		void SendCommand(void);
 		void ReceiveReply(void);
 		void WaitForReply(Byte expectDevice, Byte expectCommand);
+		void WaitForReplyEitherDevice(Byte expectDevice1, Byte expectCommand1, Byte expectDevice2, Byte expectCommand2);
 		int convertToMicrosteps(double distance, char* unit);
 		double convertFromMicrosteps(int distance, char* unit);
 

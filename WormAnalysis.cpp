@@ -20,8 +20,6 @@ using namespace cv;
 using namespace std;
 
 
-
-
 WormAnalysis::WormDataStructures::WormDataStructures(void){
 
 	FirstImageFlag = true;
@@ -376,13 +374,13 @@ void WormAnalysis::WormSegmentation2(void){
 
 	//Begin segmentation calculation
 	//for(int i=1; i<numberOfSegments; i++){
-	int i = 1;
+	int i = 0;
 	currentLocation = WormData.HeadIndex;
 	while(abs(currentLocation-WormData.TailIndex)>N){
 		AngleDifference = 10;
 		LastAngleDifference = 10;
-		currentLocation = boundCheck(WormData.HeadIndex + N*i, numPoints);
-		if(i == 1){
+		currentLocation = boundCheck(WormData.HeadIndex + N*(i+1), numPoints);
+		if(i == 0){
 			guess = boundCheck(WormData.HeadIndex - N, numPoints);
 		}
 		else{
@@ -432,7 +430,7 @@ void WormAnalysis::WormSegmentation2(void){
 			*/
 			count++;
 			if (count>100){ //TO DO: fix this
-				if(i == 1){
+				if(i == 0){
 					guess = boundCheck(WormData.HeadIndex - N, numPoints);
 				}
 				else{
@@ -447,8 +445,8 @@ void WormAnalysis::WormSegmentation2(void){
 	   }//end while loop for angle search
 	/*	WormData.Segments[i][1] = currentLocation;
 		WormData.Segments[i][2] = guess;*/
-		WormData.Segments[i].x = currentLocation;
-		WormData.Segments[i].y = guess;
+		WormData.Segments.push_back(Point(currentLocation, guess));
+		//WormData.Segments[i].y = guess;
 		i++;
 	}//end for loop over number of segments
 	WormData.NumberOfSegments = i;
@@ -460,69 +458,68 @@ void WormAnalysis::WormSegmentation2(void){
 		circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j][1]], 3, color, 1, 8, 0);
 	}*/
 }
-void WormAnalysis::FindSkeleton(void){
-	//First Point on skeleton is the head.
-	WormData.Skeleton.clear();
-	WormData.Skeleton.push_back(WormData.Worm[WormData.HeadIndex]);
-
-	Point DummyPoint;
-	//double dummy;
-	
-	vector<double> DistanceBetweenSkeletonPoints;
-	double SkeletonLength = 0 ;
-	DistanceBetweenSkeletonPoints.clear();
-
-	for( int i=1;i<WormSeg.numberOfSegments; i++){
-		//DummyPoint.x = ( WormData.Worm[WormData.Segments[i][1]].x +  WormData.Worm[WormData.Segments[i][2]].x )/2;
-		//DummyPoint.y = ( WormData.Worm[WormData.Segments[i][1]].y +  WormData.Worm[WormData.Segments[i][2]].y )/2;
-		DummyPoint.x = ( WormData.Worm[WormData.Segments[i].x].x +  WormData.Worm[WormData.Segments[i].y].x )/2;
-		DummyPoint.y = ( WormData.Worm[WormData.Segments[i].x].y +  WormData.Worm[WormData.Segments[i].y].y )/2;
-		WormData.Skeleton.push_back(DummyPoint);
-
-		//dummy = PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]);
-		DistanceBetweenSkeletonPoints.push_back(PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]));
-		
-
-
-
-	}
-	//Last point is the tail.
-	WormData.Skeleton.push_back(WormData.Worm[WormData.TailIndex]);
-	
-	//Find the length of the skeleton:
-	for(std::vector<double>::iterator j=DistanceBetweenSkeletonPoints.begin();j!=DistanceBetweenSkeletonPoints.end();++j)
-		SkeletonLength += *j;
-
-
-	//Create a vector of 
-	//the distance between each point along skeleton
-	//Use that to find the length of the skeleton
-
-	double TargetLength = 0.25*SkeletonLength;
-	double DistanceFromHead = 0;
-
-	//variables for finding target between two points:
-	double Length;
-	double Ratio;
-	for(int i=1;i<WormSeg.numberOfSegments;i++){
-		Length = TargetLength-DistanceFromHead;	
-		DistanceFromHead += DistanceBetweenSkeletonPoints[i-1];
-		if( DistanceFromHead>TargetLength){
-			if (WormData.Skeleton[i].x - WormData.Skeleton[i-1].x != 0){
-				Ratio = (WormData.Skeleton[i].y - WormData.Skeleton[i-1].y)/(WormData.Skeleton[i].x - WormData.Skeleton[i-1].x);
-				WormData.Target.x = (int)floor(Length/(sqrt(pow(Ratio,2)+1))+WormData.Skeleton[i-1].x);
-				WormData.Target.y = (int)floor(Ratio*(WormData.Target.x-WormData.Skeleton[i-1].x)+WormData.Skeleton[i-1].y);
-			}
-			else{
-				WormData.Target.x = WormData.Skeleton[i-1].x;
-				WormData.Target.y = (int)floor(WormData.Skeleton[i-1].y+Length);
-			}
-			break;
-		}
-
-	}
-}
+//void WormAnalysis::FindSkeleton(void){
+//	//First Point on skeleton is the head.
+//	WormData.Skeleton.clear();
+//	WormData.Skeleton.push_back(WormData.Worm[WormData.HeadIndex]);
+//
+//	Point DummyPoint;
+//	//double dummy;
+//	
+//	vector<double> DistanceBetweenSkeletonPoints;
+//	double SkeletonLength = 0 ;
+//	DistanceBetweenSkeletonPoints.clear();
+//
+//	for( int i=1;i<WormSeg.numberOfSegments; i++){
+//		//DummyPoint.x = ( WormData.Worm[WormData.Segments[i][1]].x +  WormData.Worm[WormData.Segments[i][2]].x )/2;
+//		//DummyPoint.y = ( WormData.Worm[WormData.Segments[i][1]].y +  WormData.Worm[WormData.Segments[i][2]].y )/2;
+//		DummyPoint.x = ( WormData.Worm[WormData.Segments[i].x].x +  WormData.Worm[WormData.Segments[i].y].x )/2;
+//		DummyPoint.y = ( WormData.Worm[WormData.Segments[i].x].y +  WormData.Worm[WormData.Segments[i].y].y )/2;
+//		WormData.Skeleton.push_back(DummyPoint);
+//
+//		//dummy = PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]);
+//		DistanceBetweenSkeletonPoints.push_back(PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]));
+//		
+//
+//
+//
+//	}
+//	//Last point is the tail.
+//	WormData.Skeleton.push_back(WormData.Worm[WormData.TailIndex]);
+//	
+//	//Find the length of the skeleton:
+//	for(std::vector<double>::iterator j=DistanceBetweenSkeletonPoints.begin();j!=DistanceBetweenSkeletonPoints.end();++j)
+//		SkeletonLength += *j;
+//
+//
+//
+//	double TargetLength = 0.25*SkeletonLength;
+//	double DistanceFromHead = 0;
+//
+//	//variables for finding target between two points:
+//	double Length;
+//	double Ratio;
+//	for(int i=1;i<WormSeg.numberOfSegments;i++){
+//		Length = TargetLength-DistanceFromHead;	
+//		DistanceFromHead += DistanceBetweenSkeletonPoints[i-1];
+//		if( DistanceFromHead>TargetLength){
+//			if (WormData.Skeleton[i].x - WormData.Skeleton[i-1].x != 0){
+//				Ratio = (WormData.Skeleton[i].y - WormData.Skeleton[i-1].y)/(WormData.Skeleton[i].x - WormData.Skeleton[i-1].x);
+//				WormData.Target.x = (int)floor(Length/(sqrt(pow(Ratio,2)+1))+WormData.Skeleton[i-1].x);
+//				WormData.Target.y = (int)floor(Ratio*(WormData.Target.x-WormData.Skeleton[i-1].x)+WormData.Skeleton[i-1].y);
+//			}
+//			else{
+//				WormData.Target.x = WormData.Skeleton[i-1].x;
+//				WormData.Target.y = (int)floor(WormData.Skeleton[i-1].y+Length);
+//			}
+//			break;
+//		}
+//
+//	}
+//}
 void WormAnalysis::DrawResult(void){
+
+	WormData.ImageToPrint = NULL;
 	
 	cvtColor(WormImages.OriginalImageResize, WormData.ImageToPrint, CV_GRAY2RGB);
 	
@@ -551,25 +548,28 @@ void WormAnalysis::DrawResult(void){
 	}
 
 	////PRINT SEGMENTS:
-	////Scalar color(225, 225, 225);
-	//for(int j=1; j<WormSeg.numberOfSegments; j++){
-	//	line(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j][1]], WormData.Worm[WormData.Segments[j][2]], color, 1, 8, 0);
-	//	circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j][1]], 3, color, 1, 8, 0);
-	//}
+	//Scalar color(225, 225, 225);
+	for(int j=1; j<WormData.NumberOfSegments; j++){
+		line(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j].x], WormData.Worm[WormData.Segments[j].y], color, 1, 8, 0);
+		circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j].x], 3, color, 1, 8, 0);
+	}
 	
 	
 	////PRINT SKELETON
-	//idx = 0;
-	////Scalar color( rand()&255, rand()&255, rand()&255 );
-	//	for( ; idx >= 0; idx = hierarchy[idx][0] )
- //   {
-	//	Scalar color(255,255,255);   
-	//	drawContours(WormData.ImageToPrint, WormData.Contours, idx, color, 0, 0, hierarchy, 0 );
- //   }
+	idx = 0;
+	//Scalar color( rand()&255, rand()&255, rand()&255 );
+		for( ; idx >= 0; idx = hierarchy[idx][0] )
+    {
+		Scalar color(255,255,255);   
+		drawContours(WormData.ImageToPrint, WormData.Contours, idx, color, 0, 0, hierarchy, 0 );
+    }
 
 	//PRINT TARGET
-	//circle(WormData.ImageToPrint, WormData.Target, 10, color, 1, 8, 0);
+	circle(WormData.ImageToPrint, WormData.Target, 10, color, 1, 8, 0);
 
+	char numstr[21];
+	sprintf(numstr, "Frame #: %d", wormCount);
+	putText(WormData.ImageToPrint, numstr, Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.75, color, 2, 8, false);  
 
 	////Print to Screen
 	/*namedWindow("Display window", CV_WINDOW_AUTOSIZE);
@@ -583,7 +583,13 @@ void WormAnalysis::DrawResult(void){
 }
 //Highest Level Function:
 void WormAnalysis::FindWorm(void){	
-	Mat thresholdTest;
+	wormCount++;
+	WormImages.OriginalImageResize = NULL;
+	WormImages.ThresholdImage = NULL;
+	WormImages.SmoothImage = NULL;
+	WormData.Contours.clear();
+	WormData.Worm.clear();
+
 	//Data for Gaussian smoothing:
 	Size_<int> ksize(WormSmoothParam.ksizeWidth,WormSmoothParam.ksizeHeight);
 	offset.x = 0;
@@ -601,9 +607,12 @@ void WormAnalysis::FindWorm(void){
 
 	//Find Contours
 	findContours(WormImages.SmoothImage, WormData.Contours, hierarchy, WormContourParam.mode, WormContourParam.method, offset);
-	//Find the largest and the second largest contour:	
+	
+	//Find the largest and the second largest contour:
+	//TO Do:: turn this into a function:
 	int MaxContourSize = 1;
 	int MaxContour=1;
+	//TO DO: turn this into a vector interator:
 	for(int i = 0; i<WormData.Contours.size(); i++){
 		//CurrentContourSize = WormData.Contours[i].size();
 		if (WormData.Contours[i].size()>MaxContourSize){
@@ -637,6 +646,8 @@ void WormAnalysis::FindWorm(void){
 	//FIND SKELETON, TARGET
 	//Use the segments to find the skeleton of the worm:
 	FindSkeleton();
+
+	WormData.Target = FindTarget(target);
 	
 	//Now done with at least one image, so turn off first image flag.
 	WormData.FirstImageFlag = false;
@@ -647,4 +658,93 @@ void WormAnalysis::ShowImage(Mat imageToShow){
 	imshow("Display window", imageToShow);
 	cvWaitKey(3);
 
+}
+
+/* Function: addMidpointToSkeleton
+ * -------------------------------
+ * Takes a point indicating two indexs of points corresponding to a worm
+ * segment. Computes the midpoint for that segment and adds it to the worm
+ * skeleton.
+ */
+void WormAnalysis::addMidpointToSkeleton(Point segmentIndexes)
+{
+    //extract indexs
+    int index1 = segmentIndexes.x;
+    int index2 = segmentIndexes.y;
+    
+    //extract points
+    Point point1 = WormData.Worm[index1];
+    Point point2 = WormData.Worm[index2];
+    
+    //compute midpoint
+    Point midpoint;
+    midpoint.x = (point1.x + point2.x)/2;
+    midpoint.y = (point1.y + point2.y)/2;
+    
+    //add midpoint to skeleton
+    WormData.Skeleton.push_back(midpoint);
+}
+
+/* Function: FindSkeleton
+ * ----------------------
+ * Finds and stores points in the global skeleton array.
+ */
+void WormAnalysis::FindSkeleton(void)
+{
+    WormData.Skeleton.clear();
+    
+    //Add head to skeleton
+    WormData.Skeleton.push_back(WormData.Worm[WormData.HeadIndex]);
+    
+    //Add midpoints to skeleton
+    for(vector<Point>::iterator it = WormData.Segments.begin(); it< WormData.Segments.end(); it++){
+		addMidpointToSkeleton(*it);
+	}
+
+    //Add tail to skeleton
+    WormData.Skeleton.push_back(WormData.Worm[WormData.TailIndex]);
+}
+
+/* Function: target
+ * ----------------
+ * Returns a point to the target. Takes in a percent length of the worm starting
+ * from the head to the tail.
+ */
+Point WormAnalysis::FindTarget(double percentLength)
+{
+    Point result;
+    
+    //finds the length of the skeleton
+    double skeletonLength = 0.0;
+    vector<double> skeletonDistances;
+    for (int i = 0; i < WormData.Skeleton.size() - 1; i++) {
+        Point point1 = WormData.Skeleton[i];
+        Point point2 = WormData.Skeleton[i + 1];
+        double distance = PointDistance(point1, point2);
+        skeletonDistances.push_back(distance);
+        skeletonLength += distance;
+    }
+    
+    //target length from head
+    double targetLength = percentLength * skeletonLength;
+    
+    //finds segment that contains target
+    double lengthAlongSkeleton = 0;
+    int indexAlongSkeleton = 0;
+    while (lengthAlongSkeleton < targetLength) {
+        lengthAlongSkeleton += skeletonDistances[indexAlongSkeleton];
+        indexAlongSkeleton++;
+    }
+    
+    //find target
+    double extraLength = lengthAlongSkeleton - targetLength;
+    
+    double lastSegmentLength = skeletonDistances[indexAlongSkeleton];
+    Point nextPoint = WormData.Skeleton[indexAlongSkeleton];
+    Point prevPoint = WormData.Skeleton[indexAlongSkeleton - 1];
+    
+    result.x = nextPoint.x - extraLength * ((nextPoint.x - prevPoint.x)/lastSegmentLength);
+    result.y = nextPoint.y - extraLength * ((nextPoint.y - prevPoint.y)/lastSegmentLength);
+    
+    return result;
 }

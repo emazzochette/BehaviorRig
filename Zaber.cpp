@@ -13,7 +13,7 @@
 #using <System.dll>
  
 // Sets duration to wait for when polling for available bytes to read
-#define SLEEP_DURATION_MS	 10
+#define SLEEP_DURATION_MS	5
  
 // Some Binary message command numbers
 #define CMD_HOME	 	 	 	 	 1
@@ -178,10 +178,10 @@ void Zaber::moveStageRelative(double distanceX, double distanceY)//, char* unit)
 	SendCommand();
 	TICTOC::timer().toc("StageMovementSendXCommand");
 	TICTOC::timer().tic("StageMovementWaitXCommand");
-	WaitForReply(1, CMD_MOVE_RELATIVE);
+	//WaitForReply(1, CMD_MOVE_RELATIVE);
 	TICTOC::timer().toc("StageMovementWaitXCommand");
-	distance = data;
-	posX = convertFromMicrosteps(distance, unitMove);
+	/*distance = data;
+	posX = convertFromMicrosteps(distance, unitMove);*/
 	
 	//Send Data to move in Y direction
 	
@@ -192,15 +192,40 @@ void Zaber::moveStageRelative(double distanceX, double distanceY)//, char* unit)
 	SendCommand();
 	TICTOC::timer().toc("StageMovementSendYCommand");
 	TICTOC::timer().tic("StageMovementWaitYCommand");
-	WaitForReply(2, CMD_MOVE_RELATIVE);
+	//WaitForReply(2, CMD_MOVE_RELATIVE);
 	TICTOC::timer().toc("StageMovementWaitYCommand");
-	distance = data;
+	/*distance = data;
 	posY = convertFromMicrosteps(distance, unitMove);
+*/
 
-	//Report stage position
-	TICTOC::timer().tic("StageMovementGetStagePosition");
-	//getStagePosition();
-	TICTOC::timer().toc("StageMovementGetStagePosition");
+	TICTOC::timer().tic("StageMovementWaitTwoDevicesCommand");
+	 WaitForReplyEitherDevice(1, CMD_MOVE_RELATIVE, 2, CMD_MOVE_RELATIVE);  // wait for either reply
+    distance = convertFromMicrosteps(data, unitMove);          // find final position
+	if(device == 1)                                            // update relevant position
+    {
+        posX = distance;
+    }
+    else
+    {
+        posY = distance;
+    }
+
+    WaitForReplyEitherDevice(1, CMD_MOVE_RELATIVE, 2, CMD_MOVE_RELATIVE);
+    distance = convertFromMicrosteps(data, unitMove);
+    if(device == 1)
+    {
+        posX = distance;
+    }
+    else
+    {
+        posY = distance;
+    }
+	TICTOC::timer().toc("StageMovementWaitTwoDevicesCommand");
+
+	////Report stage position
+	//TICTOC::timer().tic("StageMovementGetStagePosition");
+	////getStagePosition();
+	//TICTOC::timer().toc("StageMovementGetStagePosition");
 	
 }
 
@@ -253,7 +278,7 @@ int Zaber::requestZaberStatus(void)
 	WaitForReply(1, CMD_RETURN_STATUS);
 	if (data !=0)
 	{
-		return 1;
+		return 1; //x-axis is moving
 	}
 	else
 	{
@@ -264,11 +289,11 @@ int Zaber::requestZaberStatus(void)
 		WaitForReply(2, CMD_RETURN_STATUS);
 		if (data != 0)
 		{
-			return 2;
+			return 2; //y-axis is moving
 		}
 		else 
 		{
-			return 0;
+			return 0; //zaber is stable
 		}
 	}	
 }
@@ -351,6 +376,28 @@ void Zaber::WaitForReply(Byte expectDevice, Byte expectCommand)
  	 	 	 	 || command == CMD_UNEXPECTED_POS	 // Device has recently stalled or displaced
  	 	 	 	 || command == CMD_ERROR) ) );	 	 // Device is sending an error reply
 }
+
+
+void Zaber::WaitForReplyEitherDevice(Byte expectDevice1, Byte expectCommand1, Byte expectDevice2, Byte expectCommand2)
+{
+ do
+ {
+     //ReceiveReply(port, device, command, data);
+     ReceiveReply();
+ } while( !( (device == expectDevice1)  
+			&& (command == expectCommand1               // Reply matches device and command 1
+                 || command == CMD_HOME              // Auto-home routinehas been triggered
+                 || command == CMD_LIMIT_ACTIVE      // Device has reached its travel limit
+                 || command == CMD_UNEXPECTED_POS    // Device has recently stalled or displaced
+                 || command == CMD_ERROR))           // Device is sending an error reply
+          || (device == expectDevice2                // OR reply matches device and command 2
+			&& (command == expectCommand2
+                 || command == CMD_HOME              // Auto-home routine has been triggered
+                 || command == CMD_LIMIT_ACTIVE      // Device has reached its travel limit
+                 || command == CMD_UNEXPECTED_POS    // Device has recently stalled or displaced
+                 || command == CMD_ERROR)) );      // Device is sending an error reply
+}
+
 
 int Zaber::convertToMicrosteps(double distance, char* unit){
 	int out = 0;

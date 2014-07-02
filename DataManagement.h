@@ -30,6 +30,7 @@ public:
 
 
 	vector<Mat> videoBuffer;
+//	safe_queue<double[]> dataBuffer;
 
 	//DataManagement(void);
 	char* CreateFileName(const char* , const char*, const char* );

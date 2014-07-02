@@ -23,6 +23,8 @@ public:
 
 	
 	double imageResizeScale;
+	int wormCount;
+	double target;
 
 	struct WormImageStructures{
 		Mat OriginalImage;
@@ -39,7 +41,7 @@ public:
 		vector<Point> Segments;// [500][2];
 		bool FirstImageFlag;
 		Mat ImageToPrint;
-		Vector<Point> Skeleton;// [50000];
+		vector<Point> Skeleton;// [50000];
 		int NumberOfSegments;
 		Point Target;
 		Point Head;
@@ -107,6 +109,7 @@ private:
 
 	//Function prototypes
 private:
+	
 	void WriteWormDataToFile(string, WormDataStructures &WormData);
 	int boundCheck(int , int);
 	double DotProduct(vector<int>, vector<int>);
@@ -119,6 +122,8 @@ private:
 	void WormSegmentation(void);
 	void WormSegmentation2(void);
 	void FindSkeleton(void);
+	void addMidpointToSkeleton(Point);
+	Point FindTarget(double);
 
 public:	
 	void FindWorm(void);

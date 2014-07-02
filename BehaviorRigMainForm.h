@@ -309,9 +309,11 @@ private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender,
 			
 			 //Start writing video frames to buffer if number of processed frames is more than 4
 			 if (testArr[1]>4){
-				 experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.back();
-				 experiment->exp.dataManagement.videoBuffer.pop_back();
+			 	 experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.back();
+			 	 experiment->exp.dataManagement.videoBuffer.pop_back();
 			 }
+
+			 //experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.remove();
 
 		
 
@@ -352,7 +354,7 @@ private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  send
 			 }
 
 			  //finish writing frames to video:
-			  for (std::vector<Mat>::iterator it = experiment->exp.dataManagement.videoBuffer.begin(); it < experiment->exp.dataManagement.videoBuffer.end(); it++ ){
+			  for (std::vector<Mat>::iterator it = experiment->exp.dataManagement.videoBuffer.end(); it < experiment->exp.dataManagement.videoBuffer.begin(); it-- ){
 				experiment->exp.videoWriter << *it;
 				//experiment->exp.dataManagement.videoBuffer.pop_back();
 			  }
@@ -370,6 +372,8 @@ private: System::Void setUpExperimentButton_Click(System::Object^  sender, Syste
 			}
 			else{
 				zaber->SetMoveUnit("Micrometer");
+				experiment->exp.wormAnalysis.wormCount = 0;
+				experiment->exp.wormAnalysis.target = 0.25;
 				experiment->exp.imageScale = 0.75;
 				experiment->exp.wormAnalysis.imageResizeScale = experiment->exp.imageScale;
 
@@ -392,6 +396,10 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 	Experiment::doublePoint LocalMoveStage;
 	array<double>^ dataArray = gcnew array<double>{1,2,3,4,5,6,7,8,9,10,11,12,13};
 	
+	
+	double time;
+	clock_t start = clock();
+	
 
 	TICTOC::timer().tic("WholeWormTrackLoop");
 	for (int i=1; i<n+1; i++)
@@ -406,6 +414,13 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			
 			if (experiment->exp.inputMode == "camera"){
 				TICTOC::timer().tic("ImageAcqusition");
+				int counter = 0;
+				while(true) {
+					counter++;
+					int zab_status = zaber->requestZaberStatus();
+					if (zab_status == 0) break;
+					
+				}
 				experiment->exp.imageControl.GetImage();
 				experiment->exp.wormAnalysis.WormImages.OriginalImage = experiment->exp.imageControl.img;
 				TICTOC::timer().toc("ImageAcqusition");
@@ -427,16 +442,30 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 				return -1;
 			}
 			
-			
+			time = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
 			
 			TICTOC::timer().tic("FindWorm");
 			experiment->exp.wormAnalysis.FindWorm();
 			TICTOC::timer().toc("FindWorm");
 		
+		
+
+		/*	experiment->exp.wormAnalysis.WormData.Target.x = experiment->exp.wormAnalysis.WormData.Head.x ;
+			experiment->exp.wormAnalysis.WormData.Target.y = experiment->exp.wormAnalysis.WormData.Head.y;*/
+			
+			//TICTOC::timer().tic("CalculateStageMovement");
+			LocalMoveStage = experiment->DetermineStageMovement(experiment->exp.wormAnalysis.WormData.Target.x, experiment->exp.wormAnalysis.WormData.Target.y);
+			//TICTOC::timer().toc("CalculateStageMovement");
+			TICTOC::timer().tic("StageMovementCommand");
+			zaber->moveStageRelative(LocalMoveStage.x,  LocalMoveStage.y);
+			TICTOC::timer().toc("StageMovementCommand");
+		
+
 			TICTOC::timer().tic("DrawingResultForVideo");
 			experiment->exp.wormAnalysis.DrawResult();
 			TICTOC::timer().toc("DrawingResultForVideo");
 			
+			//experiment->exp.wormAnalysis.ShowImage(experiment->exp.wormAnalysis.WormImages.OriginalImage);
 			//experiment->exp.wormAnalysis.ShowImage(experiment->exp.wormAnalysis.WormData.ImageToPrint);
 			
 			
@@ -444,37 +473,25 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			experiment->exp.dataManagement.videoBuffer.insert(experiment->exp.dataManagement.videoBuffer.begin(), experiment->exp.wormAnalysis.WormData.ImageToPrint);
 			//experiment->exp.videoWriter << experiment->exp.wormAnalysis.WormData.ImageToPrint;
 			TICTOC::timer().toc("WriteFrameToVideo");
-
-			experiment->exp.wormAnalysis.WormData.Target.x = experiment->exp.wormAnalysis.WormData.Head.x ;
-			experiment->exp.wormAnalysis.WormData.Target.y = experiment->exp.wormAnalysis.WormData.Head.y;
-			
-			//TICTOC::timer().tic("CalculateStageMovement");
-			LocalMoveStage = experiment->DetermineStageMovement(experiment->exp.wormAnalysis.WormData.Target.x, experiment->exp.wormAnalysis.WormData.Target.y);
-			//TICTOC::timer().toc("CalculateStageMovement");
-			//zaber->getStagePosition();
-			TICTOC::timer().tic("StageMovementCommand");
-			zaber->moveStageRelative(LocalMoveStage.x,  LocalMoveStage.y);
-			TICTOC::timer().toc("StageMovementCommand");
-		
 			
 			
 			
 		
 
 			//TICTOC::timer().tic("CreateReportProgressDataArray");
-			dataArray[0] = 0; //Time Stamp
-			dataArray[1] = i; //Processed Frame Count
-			dataArray[2] = experiment->exp.imageControl.frameCount; //Frame Number
+			dataArray[0] = time;                                                      //Time Stamp
+			dataArray[1] = i;                                                      //Processed Frame Count
+			dataArray[2] = experiment->exp.imageControl.frameCount;                //Frame Number
 			dataArray[3] = (double)experiment->exp.wormAnalysis.WormData.Target.x; //Target Position X
-			dataArray[4] = (double)experiment->exp.wormAnalysis.WormData.Target.y;
-			dataArray[5] = (double)experiment->exp.wormAnalysis.WormData.Head.x;
-			dataArray[6] = (double)experiment->exp.wormAnalysis.WormData.Head.y;
-			dataArray[7] = (double)experiment->exp.wormAnalysis.WormData.Tail.x;
-			dataArray[8] = (double)experiment->exp.wormAnalysis.WormData.Tail.y;
-			dataArray[9] = LocalMoveStage.x;
-			dataArray[10] = LocalMoveStage.y;
-			dataArray[11] = zaber->posX;
-			dataArray[12] = zaber->posY;
+			dataArray[4] = (double)experiment->exp.wormAnalysis.WormData.Target.y; //Target Position Y
+			dataArray[5] = (double)experiment->exp.wormAnalysis.WormData.Head.x;   //Head Position X
+			dataArray[6] = (double)experiment->exp.wormAnalysis.WormData.Head.y;   //Head Position Y
+			dataArray[7] = (double)experiment->exp.wormAnalysis.WormData.Tail.x;   //Tail Position X
+			dataArray[8] = (double)experiment->exp.wormAnalysis.WormData.Tail.y;   //Tail Position Y
+			dataArray[9] = LocalMoveStage.x;                                       //Stage X-Movement
+			dataArray[10] = LocalMoveStage.y;                                      //Stage Y-Movement
+			dataArray[11] = zaber->posX;                                           //Stage Position X
+			dataArray[12] = zaber->posY;                                           //Stage Position Y
 			//TICTOC::timer().toc("CreateReportProgressDataArray");
 
 			worker->ReportProgress( 0 , dataArray->Clone());

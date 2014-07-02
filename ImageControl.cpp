@@ -24,14 +24,14 @@ void ImageControl::StartCamera(void)
         sink = FrameHandlerSink::create( DShowLib::eY800, 5 );
 
 
-        sink->setSnapMode( false );
+        sink->setSnapMode( true );
         grabber.setSinkType( sink );
 
 		
         // Show the device selection dialog
         grabber.showDevicePage();
 
-		grabber.setVideoFormat("Y800 (96x96-512x384) [Binning 2x]");
+		//grabber.setVideoFormat("Y800 (96x96-512x384) [Binning 2x]");
         
 		
 		/*long val = grabber.getProperty(CameraControl_Exposure);
