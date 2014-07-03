@@ -6,6 +6,7 @@
 
 
 #include "WormAnalysis.h"
+#include "safe_queue.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -29,8 +30,8 @@ public:
 	} DataWriter;
 
 
-	vector<Mat> videoBuffer;
-//	safe_queue<double[]> dataBuffer;
+	safe_queue<vector<double> > dataBuffer;
+	safe_queue<WormAnalysis::WormDataStructures> wormDataBuffer;
 
 	//DataManagement(void);
 	char* CreateFileName(const char* , const char*, const char* );
@@ -39,7 +40,7 @@ public:
 
 	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures,  WriteOut*);
 	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);//, WriteOut* DataWriter);
-	int AppendWormFrameToDisk(array<double>^, double, double);
+	int AppendWormFrameToDisk(vector<double>, double, double, WormAnalysis::WormDataStructures);
 	int WriteStringToDisk(string, string);
 	int WriteDoubleToDisk(string, double);
 	int WritePointToDisk(string, Point);

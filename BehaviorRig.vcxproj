@@ -57,6 +57,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>C:\Users\Eileen Mazzochette\Documents\IC Imaging Control 3.3\classlib\include;$(OPENCV_DIR)\..\..\include\opencv;$(OPENCV_DIR)\..\..\include\opencv2;$(OPENCV_DIR)\..\..\include;C:\opencv\build\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv</AdditionalIncludeDirectories>
       <CompileAsManaged>true</CompileAsManaged>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

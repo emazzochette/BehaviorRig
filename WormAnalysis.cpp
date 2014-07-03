@@ -1,31 +1,19 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "WormAnalysis.h"
-
-#pragma managed(push,off)
-#include <cv.h>
-#pragma managed(pop)
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
   
-#include <highgui.h>
-#include <iostream>
-#include <stdio.h>
-#include <math.h>
-#include <complex>
-#include <ctime>
-
-//#include <vector.h>
-
 using namespace cv;
 using namespace std;
 
 
-WormAnalysis::WormDataStructures::WormDataStructures(void){
-
+WormAnalysis::WormDataStructures::WormDataStructures(void)
+{
 	FirstImageFlag = true;
 } 
 
-WormAnalysis::GaussianSmoothingParameters::GaussianSmoothingParameters(void){
+WormAnalysis::GaussianSmoothingParameters::GaussianSmoothingParameters(void)
+{
 	ksizeHeight = 5;
 	ksizeWidth = 5;
 	sigmaX = 3;
@@ -33,41 +21,41 @@ WormAnalysis::GaussianSmoothingParameters::GaussianSmoothingParameters(void){
 	borderType=BORDER_DEFAULT;
 }
 
-WormAnalysis::WormThresholdParameters::WormThresholdParameters(void){
+WormAnalysis::WormThresholdParameters::WormThresholdParameters(void)
+{
 	threshold = 75;
 	maxVal = 255;
 	thresholdType = THRESH_BINARY;
 };
 
-WormAnalysis::WormContourFindingParameters::WormContourFindingParameters(void){
+WormAnalysis::WormContourFindingParameters::WormContourFindingParameters(void)
+{
 	mode = CV_RETR_EXTERNAL;
 	method = CV_CHAIN_APPROX_NONE;
 	//offset = (0,0);
 };
 
-WormAnalysis::WormSegmentationStructures::WormSegmentationStructures(void){
+WormAnalysis::WormSegmentationStructures::WormSegmentationStructures(void)
+{
 	SegJump = 10;
 	PointsBetweenSegments = 5; 	
 };
 
 
-
-
-
-
-
 // Lower Level Functions:
-
-void WormAnalysis::WriteWormDataToFile(string FileName, WormDataStructures &WormData){
+void WormAnalysis::WriteWormDataToFile(string FileName, WormDataStructures &WormData)
+{
 	//FileStorage fs(FileName, FileStorage::APPEND);
 	//fs << "WormData";
 	//fs << "Worm" << WormData.ImageToPrint; // << WormData;
 	//fs.release();
 }
-int WormAnalysis::boundCheck(int currentIndex, int maxIndex){
+
 //This function makes sure that the current index is within the bounds of
 //the potential indices. If not, it wraps the current index to the end or
 //the beginning.
+int WormAnalysis::boundCheck(int currentIndex, int maxIndex)
+{
 	if(currentIndex < 0){
         return maxIndex - abs(currentIndex);
 	}
@@ -79,22 +67,26 @@ int WormAnalysis::boundCheck(int currentIndex, int maxIndex){
 	}
 }
 
-double WormAnalysis::DotProduct(vector<int> a, vector<int> b){
+double WormAnalysis::DotProduct(vector<int> a, vector<int> b)
+{
 	return double(a[0]*b[0] + a[1]*b[1]);
 }
-double WormAnalysis::VectorNorm(vector<int> a){
+
+double WormAnalysis::VectorNorm(vector<int> a)
+{
 	return sqrt(double(a[0])*double(a[0]) + double(a[1])*double(a[1]));
 }
 
-double WormAnalysis::PointDistance(Point a, Point b){
+double WormAnalysis::PointDistance(Point a, Point b)
+{
 	double exponent = 2;
- 	return sqrt( pow(double(a.x-b.x),exponent) + pow(double(a.y - b.y),exponent) );
+ 	return sqrt(pow(double(a.x-b.x),exponent) + pow(double(a.y - b.y),exponent));
 }
 
 
 // Higher Level Functions:
-void WormAnalysis::FindWormTail(void){
-	
+void WormAnalysis::FindWormTail(void)
+{
 	vector<int> ForVec (2);
 	vector<int> BackVec (2);
 
@@ -134,8 +126,8 @@ void WormAnalysis::FindWormTail(void){
 	WormData.Tail = WormData.Worm[WormData.TailIndex];	
 
 }
-void WormAnalysis::FindWormTailInsideRange(void){
-
+void WormAnalysis::FindWormTailInsideRange(void)
+{
 	vector<int> ForVec (2);
 	vector<int> BackVec (2);
 
@@ -177,7 +169,9 @@ void WormAnalysis::FindWormTailInsideRange(void){
 
 	WormData.Tail = WormData.Worm[WormData.TailIndex];	
 }
-void WormAnalysis::FindWormHead(void){
+
+void WormAnalysis::FindWormHead(void)
+{
 	//Parameters for head, tail search
 	vector<int> ForVec (2);
 	vector<int> BackVec (2);
@@ -191,8 +185,6 @@ void WormAnalysis::FindWormHead(void){
 	
 	double DotProductEval;	
 	double Head = 1000; // Initialize head to 1000
-
-
 
 	//Find the bounds over which to search for the head
 	int Bound1;
@@ -263,9 +255,10 @@ void WormAnalysis::FindWormHead(void){
 	
 	WormData.Head = WormData.Worm[WormData.HeadIndex];
 }
-void WormAnalysis::HeadTailCheck(void){
 
-	int Holder;
+void WormAnalysis::HeadTailCheck(void)
+{
+//	int Holder;
 	double MaxMove = 7.6; //pixels
 	if (pow(MaxMove, 2) < PointDistance(PreviousWormData.Head, WormData.Worm[WormData.HeadIndex]))
 	{
@@ -273,12 +266,10 @@ void WormAnalysis::HeadTailCheck(void){
 		//WormData.TailIndex = WormData.HeadIndex;
 		//WormData.HeadIndex = Holder;
 	}
-	
-
-
-
 }
-void WormAnalysis::WormSegmentation(void){
+
+void WormAnalysis::WormSegmentation(void)
+{
 	WormSeg.numPoints = WormData.Worm.size();
 	WormSeg.WormVec1.clear();
 	WormSeg.WormVec2.clear();
@@ -305,8 +296,6 @@ void WormAnalysis::WormSegmentation(void){
 		WormSeg.WormVec1.push_back(WormData.Worm[boundCheck(WormSeg.currentLocation+WormSeg.SegJump, WormSeg.numPoints)].x - WormData.Worm[boundCheck(WormSeg.currentLocation-WormSeg.SegJump, WormSeg.numPoints)].x);
 		WormSeg.WormVec1.push_back(WormData.Worm[boundCheck(WormSeg.currentLocation+WormSeg.SegJump, WormSeg.numPoints)].y - WormData.Worm[boundCheck(WormSeg.currentLocation-WormSeg.SegJump, WormSeg.numPoints)].y);
 	
-		
-		
 
 		for(int ii = 0; ii<WormSeg.PointsBetweenSegments*2; ii++){
 			WormSeg.WormVec2.push_back(WormData.Worm[boundCheck(WormSeg.guess+WormSeg.SegJump, WormSeg.numPoints)].x-WormData.Worm[boundCheck(WormSeg.guess-WormSeg.SegJump, WormSeg.numPoints)].x);
@@ -332,8 +321,6 @@ void WormAnalysis::WormSegmentation(void){
 		}
 
 		WormSeg.WormVec1.clear();
-	//WormData.Segments[i][1] = WormSeg.currentLocation;
-	//WormData.Segments[i][2] = WormSeg.guessMin;
 		WormData.Segments[i].x = WormSeg.currentLocation;
 		WormData.Segments[i].y = WormSeg.guessMin;
 		WormSeg.numberOfSegments = i;
@@ -341,7 +328,8 @@ void WormAnalysis::WormSegmentation(void){
 		
 	}
 }
-void WormAnalysis::WormSegmentation2(void){
+void WormAnalysis::WormSegmentation2(void)
+{
 		//SEGMENTATION
 	//Parameters for segmentation
 	double THRESHOLD = 0.8;
@@ -458,118 +446,61 @@ void WormAnalysis::WormSegmentation2(void){
 		circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j][1]], 3, color, 1, 8, 0);
 	}*/
 }
-//void WormAnalysis::FindSkeleton(void){
-//	//First Point on skeleton is the head.
-//	WormData.Skeleton.clear();
-//	WormData.Skeleton.push_back(WormData.Worm[WormData.HeadIndex]);
-//
-//	Point DummyPoint;
-//	//double dummy;
-//	
-//	vector<double> DistanceBetweenSkeletonPoints;
-//	double SkeletonLength = 0 ;
-//	DistanceBetweenSkeletonPoints.clear();
-//
-//	for( int i=1;i<WormSeg.numberOfSegments; i++){
-//		//DummyPoint.x = ( WormData.Worm[WormData.Segments[i][1]].x +  WormData.Worm[WormData.Segments[i][2]].x )/2;
-//		//DummyPoint.y = ( WormData.Worm[WormData.Segments[i][1]].y +  WormData.Worm[WormData.Segments[i][2]].y )/2;
-//		DummyPoint.x = ( WormData.Worm[WormData.Segments[i].x].x +  WormData.Worm[WormData.Segments[i].y].x )/2;
-//		DummyPoint.y = ( WormData.Worm[WormData.Segments[i].x].y +  WormData.Worm[WormData.Segments[i].y].y )/2;
-//		WormData.Skeleton.push_back(DummyPoint);
-//
-//		//dummy = PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]);
-//		DistanceBetweenSkeletonPoints.push_back(PointDistance(WormData.Skeleton[i-1],WormData.Skeleton[i]));
-//		
-//
-//
-//
-//	}
-//	//Last point is the tail.
-//	WormData.Skeleton.push_back(WormData.Worm[WormData.TailIndex]);
-//	
-//	//Find the length of the skeleton:
-//	for(std::vector<double>::iterator j=DistanceBetweenSkeletonPoints.begin();j!=DistanceBetweenSkeletonPoints.end();++j)
-//		SkeletonLength += *j;
-//
-//
-//
-//	double TargetLength = 0.25*SkeletonLength;
-//	double DistanceFromHead = 0;
-//
-//	//variables for finding target between two points:
-//	double Length;
-//	double Ratio;
-//	for(int i=1;i<WormSeg.numberOfSegments;i++){
-//		Length = TargetLength-DistanceFromHead;	
-//		DistanceFromHead += DistanceBetweenSkeletonPoints[i-1];
-//		if( DistanceFromHead>TargetLength){
-//			if (WormData.Skeleton[i].x - WormData.Skeleton[i-1].x != 0){
-//				Ratio = (WormData.Skeleton[i].y - WormData.Skeleton[i-1].y)/(WormData.Skeleton[i].x - WormData.Skeleton[i-1].x);
-//				WormData.Target.x = (int)floor(Length/(sqrt(pow(Ratio,2)+1))+WormData.Skeleton[i-1].x);
-//				WormData.Target.y = (int)floor(Ratio*(WormData.Target.x-WormData.Skeleton[i-1].x)+WormData.Skeleton[i-1].y);
-//			}
-//			else{
-//				WormData.Target.x = WormData.Skeleton[i-1].x;
-//				WormData.Target.y = (int)floor(WormData.Skeleton[i-1].y+Length);
-//			}
-//			break;
-//		}
-//
-//	}
-//}
-void WormAnalysis::DrawResult(void){
 
-	WormData.ImageToPrint = NULL;
+void WormAnalysis::DrawResult(WormDataStructures *wormData)
+{
+	wormData->ImageToPrint = NULL;
 	
-	cvtColor(WormImages.OriginalImageResize, WormData.ImageToPrint, CV_GRAY2RGB);
+	cvtColor(wormData->OriginalImageResize, wormData->ImageToPrint, CV_GRAY2RGB);
 	
 	//PRINT CONTOURS
-    int idx = 0;
-	for( ; idx >= 0; idx = hierarchy[idx][0] )
-    {
-		Scalar color(0,255,0);   
-		drawContours( WormData.ImageToPrint, WormData.Contours, idx, color, 2, 0, hierarchy, 0 );
-    }
+    //int idx = 0;
+	/*for( ; idx >= 0; idx = hierarchy[idx][0] )
+    {*/
+
+		Scalar color1(0,255,0);   
+		drawContours( wormData->ImageToPrint, wormData->Contours, wormData->MaxContour, color1, 2, 0, NULL, 0, Point(0,0) );
+    //}
 	
 
 	//Print cantilever
 	Scalar color(0,0,255);
-	circle(WormData.ImageToPrint, Point(621*imageResizeScale, 365*imageResizeScale),5,color,2,8,0);
+	circle(wormData->ImageToPrint, Point((int)(621*imageResizeScale), (int)(365*imageResizeScale)),5,color,2,8,0);
 
 	//PRINT TAIL
 	
-	circle(WormData.ImageToPrint, WormData.Worm[WormData.TailIndex], 7, color, 2, 8, 0);
+	circle(wormData->ImageToPrint, wormData->Worm[wormData->TailIndex], 7, color, 2, 8, 0);
 
 
 	//PRINT HEAD
-	circle(WormData.ImageToPrint, WormData.Worm[WormData.HeadIndex], 10, color, 2, 8, 0);
-	if (!WormData.FirstImageFlag){
-		circle(WormData.ImageToPrint, PreviousWormData.Head, 5, color, 1, 8, 0);
-	}
+	circle(wormData->ImageToPrint, wormData->Worm[wormData->HeadIndex], 10, color, 2, 8, 0);
+	/*if (!wormData.FirstImageFlag){
+		circle(wormData.ImageToPrint, PreviousWormData.Head, 5, color, 1, 8, 0);
+	}*/
 
 	////PRINT SEGMENTS:
 	//Scalar color(225, 225, 225);
-	for(int j=1; j<WormData.NumberOfSegments; j++){
-		line(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j].x], WormData.Worm[WormData.Segments[j].y], color, 1, 8, 0);
-		circle(WormData.ImageToPrint, WormData.Worm[WormData.Segments[j].x], 3, color, 1, 8, 0);
+	for(int j=1; j<wormData->NumberOfSegments; j++){
+		line(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], wormData->Worm[wormData->Segments[j].y], color, 1, 8, 0);
+		circle(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], 3, color, 1, 8, 0);
 	}
 	
 	
 	////PRINT SKELETON
-	idx = 0;
-	//Scalar color( rand()&255, rand()&255, rand()&255 );
-		for( ; idx >= 0; idx = hierarchy[idx][0] )
-    {
-		Scalar color(255,255,255);   
-		drawContours(WormData.ImageToPrint, WormData.Contours, idx, color, 0, 0, hierarchy, 0 );
-    }
+	//idx = 0;
+	////Scalar color( rand()&255, rand()&255, rand()&255 );
+	//	for( ; idx >= 0; idx = hierarchy[idx][0] )
+ //   {
+	//	Scalar color(255,255,255);   
+	//	drawContours(wormData->ImageToPrint, wormData->Contours, idx, color, 0, 0, hierarchy, 0 );
+ //   }
 
 	//PRINT TARGET
-	circle(WormData.ImageToPrint, WormData.Target, 10, color, 1, 8, 0);
+	circle(wormData->ImageToPrint, wormData->Target, 10, color, 1, 8, 0);
 
 	char numstr[21];
-	sprintf(numstr, "Frame #: %d", wormCount);
-	putText(WormData.ImageToPrint, numstr, Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.75, color, 2, 8, false);  
+	sprintf_s(numstr, "Frame #: %d", wormData->wormCount);
+	putText(wormData->ImageToPrint, numstr, Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.75, color, 2, 8, false);  
 
 	////Print to Screen
 	/*namedWindow("Display window", CV_WINDOW_AUTOSIZE);
@@ -581,14 +512,18 @@ void WormAnalysis::DrawResult(void){
 	//videoWriter << WormData.ImageToPrint;
 
 }
+
 //Highest Level Function:
-void WormAnalysis::FindWorm(void){	
-	wormCount++;
-	WormImages.OriginalImageResize = NULL;
+void WormAnalysis::FindWorm(void)
+{	
+	WormData.wormCount++;
+	WormData.OriginalImageResize = NULL;
 	WormImages.ThresholdImage = NULL;
 	WormImages.SmoothImage = NULL;
 	WormData.Contours.clear();
 	WormData.Worm.clear();
+	WormData.Skeleton.clear();
+	WormData.Segments.clear();
 
 	//Data for Gaussian smoothing:
 	Size_<int> ksize(WormSmoothParam.ksizeWidth,WormSmoothParam.ksizeHeight);
@@ -597,9 +532,9 @@ void WormAnalysis::FindWorm(void){
 
 	//THRESHOLDING SECTION
 	
-	resize(WormImages.OriginalImage, WormImages.OriginalImageResize, Size(WormImages.OriginalImage.cols*imageResizeScale, WormImages.OriginalImage.rows*imageResizeScale), 0, 0, INTER_LINEAR );
+	resize(WormImages.OriginalImage, WormData.OriginalImageResize, Size((int)(WormImages.OriginalImage.cols*imageResizeScale), (int)(WormImages.OriginalImage.rows*imageResizeScale)), 0, 0, INTER_LINEAR );
 
-	WormThresholdParam.OtsuThreshold = threshold( WormImages.OriginalImageResize, WormImages.ThresholdImage, 75, 255, THRESH_BINARY + THRESH_OTSU);//WormThresholdParam.threshold, WormThresholdParam.maxVal, WormThresholdParam.thresholdType + THRESH_OTSU);
+	WormThresholdParam.OtsuThreshold = threshold( WormData.OriginalImageResize, WormImages.ThresholdImage, 75, 255, THRESH_BINARY + THRESH_OTSU);//WormThresholdParam.threshold, WormThresholdParam.maxVal, WormThresholdParam.thresholdType + THRESH_OTSU);
 
 	// SMOOTHING AND FINDING CONTOURS
 	//Smooth using Gaussian Filter
@@ -610,17 +545,17 @@ void WormAnalysis::FindWorm(void){
 	
 	//Find the largest and the second largest contour:
 	//TO Do:: turn this into a function:
-	int MaxContourSize = 1;
-	int MaxContour=1;
+	unsigned int MaxContourSize = 1;
+	WormData.MaxContour=1;
 	//TO DO: turn this into a vector interator:
-	for(int i = 0; i<WormData.Contours.size(); i++){
+	for(unsigned int i = 0; i < WormData.Contours.size(); i++){
 		//CurrentContourSize = WormData.Contours[i].size();
-		if (WormData.Contours[i].size()>MaxContourSize){
-			MaxContour = i;
+		if (WormData.Contours[i].size() > MaxContourSize){
+			WormData.MaxContour = i;
 			MaxContourSize = WormData.Contours[i].size();			
 		}
 	}
-	WormData.Worm = WormData.Contours[MaxContour];
+	WormData.Worm = WormData.Contours[WormData.MaxContour];
 	
 	//FINDING HEAD AND TAIL
 	
@@ -653,11 +588,11 @@ void WormAnalysis::FindWorm(void){
 	WormData.FirstImageFlag = false;
 }
 
-void WormAnalysis::ShowImage(Mat imageToShow){
+void WormAnalysis::ShowImage(Mat imageToShow)
+{
 	namedWindow("Display window", CV_WINDOW_AUTOSIZE);
 	imshow("Display window", imageToShow);
 	cvWaitKey(3);
-
 }
 
 /* Function: addMidpointToSkeleton
@@ -717,7 +652,7 @@ Point WormAnalysis::FindTarget(double percentLength)
     //finds the length of the skeleton
     double skeletonLength = 0.0;
     vector<double> skeletonDistances;
-    for (int i = 0; i < WormData.Skeleton.size() - 1; i++) {
+    for (unsigned int i = 0; i < WormData.Skeleton.size() - 1; i++) {
         Point point1 = WormData.Skeleton[i];
         Point point2 = WormData.Skeleton[i + 1];
         double distance = PointDistance(point1, point2);
@@ -743,8 +678,8 @@ Point WormAnalysis::FindTarget(double percentLength)
     Point nextPoint = WormData.Skeleton[indexAlongSkeleton];
     Point prevPoint = WormData.Skeleton[indexAlongSkeleton - 1];
     
-    result.x = nextPoint.x - extraLength * ((nextPoint.x - prevPoint.x)/lastSegmentLength);
-    result.y = nextPoint.y - extraLength * ((nextPoint.y - prevPoint.y)/lastSegmentLength);
+    result.x = (int)(nextPoint.x - extraLength * ((nextPoint.x - prevPoint.x)/lastSegmentLength));
+    result.y = (int)(nextPoint.y - extraLength * ((nextPoint.y - prevPoint.y)/lastSegmentLength));
     
     return result;
 }

@@ -1,7 +1,9 @@
 #pragma once
 
 #pragma managed(push,off)
+
 #include <cv.h>
+
 #pragma managed(pop)
 
 #include <highgui.h>
@@ -11,8 +13,6 @@
 #include <complex>
 #include <ctime>
 
-//#include <vector.h>
-
 using namespace cv;
 using namespace std;
 
@@ -21,19 +21,18 @@ class WormAnalysis{
 	
 public:
 
-	
 	double imageResizeScale;
-	int wormCount;
+	
 	double target;
 
 	struct WormImageStructures{
 		Mat OriginalImage;
-		Mat OriginalImageResize;
 		Mat ThresholdImage;
 		Mat SmoothImage;
 	} WormImages;
 
 	struct WormDataStructures{
+		Mat OriginalImageResize;
 		vector<vector<Point> > Contours;
 		Vector<Point> Worm;
 		int TailIndex;
@@ -46,7 +45,8 @@ public:
 		Point Target;
 		Point Head;
 		Point Tail;
-	//	Point PreviousHeadTranslated;
+		int wormCount;
+		int MaxContour;
 
 		WormDataStructures(void);
 	} WormData, PreviousWormData;
@@ -111,7 +111,7 @@ private:
 private:
 	
 	void WriteWormDataToFile(string, WormDataStructures &WormData);
-	int boundCheck(int , int);
+	int boundCheck(int, int);
 	double DotProduct(vector<int>, vector<int>);
 	double VectorNorm(vector<int>);
 	double PointDistance(Point, Point);
@@ -127,6 +127,6 @@ private:
 
 public:	
 	void FindWorm(void);
-	void DrawResult(void);
+	void DrawResult(WormDataStructures*);
 	void ShowImage(Mat);
 };

@@ -10,23 +10,18 @@ namespace BehaviorRig {
 	using namespace System::Data;
 	using namespace System::Drawing;
 
-	using namespace msclr::interop;
-
 	/// <summary>
-	/// Summary for Form1
+	/// Summary for BehaviorRigMainForm
 	/// </summary>
 	public ref class BehaviorRigMainForm : public System::Windows::Forms::Form
 	{
 	public:
 		BehaviorRigMainForm(void)
 		{
+			InitializeComponent();
+
 			zaber = gcnew Zaber;
 			experiment = new Experiment;
-			//timing = new Timing;
-			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
 		}
 
 	protected:
@@ -40,38 +35,31 @@ namespace BehaviorRig {
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Button^  startTrackButton;
-	private: System::Windows::Forms::Button^  stopTrackButton;
-	private: System::Windows::Forms::Button^  setUpExperimentButton;
-	protected: 
-
-	protected: 
-
-
-	private: System::ComponentModel::BackgroundWorker^  backgroundWorker1;
-	private: System::Windows::Forms::Label^  trackerStatusLabel;
-
-
-	private:
+	
+		private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		System::ComponentModel::Container ^components;
+		System::ComponentModel::BackgroundWorker ^backgroundWorker1;
 
-	private: Experiment *experiment;
-	private: System::Windows::Forms::GroupBox^  inputModeGroupBox;
-	private: System::Windows::Forms::RadioButton^  videoModeRadioButton;
-	private: System::Windows::Forms::RadioButton^  cameraModeRadioButton;
-	private: System::Windows::Forms::OpenFileDialog^  openVideoFileDialog;
-	private: System::Windows::Forms::TextBox^  videoFileTextBox;
+		System::Windows::Forms::Button ^startTrackButton;
+		System::Windows::Forms::Button ^stopTrackButton;
+		System::Windows::Forms::Button ^setUpExperimentButton;
+		System::Windows::Forms::Label ^trackerStatusLabel;
 
-	private: System::Windows::Forms::Button^  videoFileBrowseButton;
-	private: System::Windows::Forms::Label^  videoFileNameLabel;
-	private: System::Windows::Forms::RadioButton^  imageModeRadioButton;
+		System::Windows::Forms::GroupBox ^inputModeGroupBox;
+		System::Windows::Forms::RadioButton ^videoModeRadioButton;
+		System::Windows::Forms::RadioButton ^cameraModeRadioButton;
+		System::Windows::Forms::OpenFileDialog ^openVideoFileDialog;
+		System::Windows::Forms::TextBox ^videoFileTextBox;
 
-			 //private: Timing *timing;
-	private: Zaber^ zaber;
+		System::Windows::Forms::Button ^videoFileBrowseButton;
+		System::Windows::Forms::Label ^videoFileNameLabel;
+		System::Windows::Forms::RadioButton ^imageModeRadioButton;
 
+		Experiment *experiment;
+		Zaber ^zaber;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -240,80 +228,79 @@ namespace BehaviorRig {
 
 		}
 #pragma endregion
-	private: System::Void startTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
-				//Disable the start track button
-				 this->startTrackButton->Enabled = false;
+private:
+	System::Void startTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
+		//disable startTrackButton and enable stopTrackButton
+		this->startTrackButton->Enabled = false;
+		this->stopTrackButton->Enabled = true;
 
-				 //Enable the stop track button
-				 this->stopTrackButton->Enabled = true;
+		//set input mode;
+		if (cameraModeRadioButton->Checked == true && videoModeRadioButton->Checked == false){
+			experiment->exp.inputMode = "camera";
+		} else if (cameraModeRadioButton->Checked == false && videoModeRadioButton->Checked == true){
+			if (experiment->exp.videoFilename.empty()){
+				MessageBox::Show("Please enter a video filename");
+				return;
+			} else {
+				experiment->exp.inputMode = "video";
+				experiment->OpenVideo(experiment->exp.videoFilename);
+			}
+		} else if (imageModeRadioButton->Checked == true){
+			if (experiment->exp.videoFilename.empty()){
+				MessageBox::Show("Please enter an image filename");
+				return;
+			} else {
+				experiment->exp.inputMode = "image";
+				//do something
+			}
+		} else return; //handle error
 
-				 //set input mode;
-				 if( cameraModeRadioButton->Checked == true && videoModeRadioButton->Checked == false)
-					 experiment->exp.inputMode = "camera";
-				 else if ( cameraModeRadioButton->Checked == false && videoModeRadioButton->Checked == true){
-					 if(experiment->exp.videoFilename.empty()){
-						 MessageBox::Show("Please enter a video filename");
-						 return;
-					 }
-					 else{
-						experiment->exp.inputMode = "video";
-						experiment->OpenVideo(experiment->exp.videoFilename);
-					 }
-				 }
-				 else if(imageModeRadioButton->Checked == true){
-					 if(experiment->exp.videoFilename.empty()){
-						 MessageBox::Show("Please enter an image filename");
-						 return;
-					 }
-					 else{
-						experiment->exp.inputMode = "image";
-						//experiment->OpenVideo(experiment->exp.videoFilename);
-					 }
-				 }
-				 else
-					 return;
+		//Start the asynchronous operation
+		backgroundWorker1->RunWorkerAsync(150);
+	}
 
-				 //Start the asynchronous operation
-				 backgroundWorker1->RunWorkerAsync(30);
-			 }
-	private: System::Void stopTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
-				 //Cancel the asynchronous operation
-				 this->backgroundWorker1->CancelAsync();
+	System::Void stopTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
+		//Cancel the asynchronous operation
+		this->backgroundWorker1->CancelAsync();
 
-				 //Disable the stop button
-				 stopTrackButton->Enabled = false;
+		//Disable the stop button and enable start button
+		stopTrackButton->Enabled = false;
+		startTrackButton->Enabled = true;
+	}
 
-				 ////Enable the start button
-				 //startTrackButton->Enabled = true;
-			 }
-private: System::Void backgroundWorker1_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
-			  //Get the BackgroundWorker that raised this event.
-				 BackgroundWorker^ worker = dynamic_cast<BackgroundWorker^>(sender);
+	System::Void backgroundWorker1_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
+		//Get the BackgroundWorker that raised this event.
+		BackgroundWorker^ worker = dynamic_cast<BackgroundWorker^>(sender);
 
-				  //Assign the result of the computation
-				 //to the Result property of the DoWorkEventErgs
-				 //object. This will be available to the 
-				 //RunWorkerCompleted eventhandler.
-				 //e->Result = experiment->trackWorm(safe_cast<Int32>(e->Argument), worker, e);
-				 e->Result = trackWorm(safe_cast<Int32>(e->Argument), worker, e);
-		 }
+		//Assign the result of the computation
+		//to the Result property of the DoWorkEventErgs
+		//object. This will be available to the 
+		//RunWorkerCompleted eventhandler.
+		//e->Result = experiment->trackWorm(safe_cast<Int32>(e->Argument), worker, e);
+		e->Result = trackWorm(safe_cast<Int32>(e->Argument), worker, e);
+	}
+
 private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
 
-			
+			WormAnalysis::WormDataStructures wormData = experiment->exp.dataManagement.wormDataBuffer.remove();
 
-			 array<double>^ testArr = safe_cast<array<double>^>(e->UserState);
+			 vector<double> testArr = experiment->exp.dataManagement.dataBuffer.remove();
 			 trackerStatusLabel->Text = System::Convert::ToString( testArr[1]); 
 
 			 //Deal with data:
-			 experiment->WriteCurrentFrameData(testArr, zaber->posX, zaber->posY);
+			 experiment->WriteCurrentFrameData(testArr, zaber->posX, zaber->posY, wormData);
 			
 			 //Start writing video frames to buffer if number of processed frames is more than 4
-			 if (testArr[1]>4){
+			 /*if (testArr[1]>4){
 			 	 experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.back();
 			 	 experiment->exp.dataManagement.videoBuffer.pop_back();
-			 }
+			 }*/
 
-			 //experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.remove();
+		
+
+			 experiment->exp.wormAnalysis.DrawResult(&wormData);
+
+			 experiment->exp.videoWriter << wormData.ImageToPrint;
 
 		
 
@@ -354,10 +341,10 @@ private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  send
 			 }
 
 			  //finish writing frames to video:
-			  for (std::vector<Mat>::iterator it = experiment->exp.dataManagement.videoBuffer.end(); it < experiment->exp.dataManagement.videoBuffer.begin(); it-- ){
-				experiment->exp.videoWriter << *it;
-				//experiment->exp.dataManagement.videoBuffer.pop_back();
-			  }
+			 // for (std::vector<Mat>::iterator it = experiment->exp.dataManagement.videoBuffer.end(); it < experiment->exp.dataManagement.videoBuffer.begin(); it-- ){
+				//experiment->exp.videoWriter << *it;
+				////experiment->exp.dataManagement.videoBuffer.pop_back();
+			 // }
 			  experiment->EndExperiment();
 			  //Enable the start button
 			  startTrackButton->Enabled = true;
@@ -372,14 +359,16 @@ private: System::Void setUpExperimentButton_Click(System::Object^  sender, Syste
 			}
 			else{
 				zaber->SetMoveUnit("Micrometer");
-				experiment->exp.wormAnalysis.wormCount = 0;
-				experiment->exp.wormAnalysis.target = 0.25;
+				experiment->exp.wormAnalysis.WormData.wormCount = 0;
+				experiment->exp.wormAnalysis.target = 0.50;
 				experiment->exp.imageScale = 0.75;
 				experiment->exp.wormAnalysis.imageResizeScale = experiment->exp.imageScale;
 
 				experiment->SetUpCamera();
 				experiment->DefineExpProperties();
 				experiment->SetUpDataOutput();
+				experiment->exp.dataManagement.wormDataBuffer.mtx = CreateMutex(NULL, FALSE, NULL);
+				experiment->exp.dataManagement.dataBuffer.mtx = CreateMutex(NULL, FALSE, NULL);
 			}
 		 }
 
@@ -394,7 +383,7 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 	 //not be set to true in your RunWorkerCompleted
 	 //event handler. This is a race condition.
 	Experiment::doublePoint LocalMoveStage;
-	array<double>^ dataArray = gcnew array<double>{1,2,3,4,5,6,7,8,9,10,11,12,13};
+	vector<double> dataArray (13, 0);
 	
 	
 	double time;
@@ -442,7 +431,7 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 				return -1;
 			}
 			
-			time = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+			time = (double)(((float)(std::clock() - start))/CLOCKS_PER_SEC);
 			
 			TICTOC::timer().tic("FindWorm");
 			experiment->exp.wormAnalysis.FindWorm();
@@ -460,19 +449,16 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			zaber->moveStageRelative(LocalMoveStage.x,  LocalMoveStage.y);
 			TICTOC::timer().toc("StageMovementCommand");
 		
+			experiment->exp.dataManagement.wormDataBuffer.add(experiment->exp.wormAnalysis.WormData);
 
-			TICTOC::timer().tic("DrawingResultForVideo");
-			experiment->exp.wormAnalysis.DrawResult();
-			TICTOC::timer().toc("DrawingResultForVideo");
+			/*TICTOC::timer().tic("DrawingResultForVideo");
+			experiment->exp.wormAnalysis.DrawResult(experiment->exp.wormAnalysis.WormData);
+			TICTOC::timer().toc("DrawingResultForVideo");*/
 			
 			//experiment->exp.wormAnalysis.ShowImage(experiment->exp.wormAnalysis.WormImages.OriginalImage);
 			//experiment->exp.wormAnalysis.ShowImage(experiment->exp.wormAnalysis.WormData.ImageToPrint);
 			
 			
-			TICTOC::timer().tic("WriteFrameToVideo");
-			experiment->exp.dataManagement.videoBuffer.insert(experiment->exp.dataManagement.videoBuffer.begin(), experiment->exp.wormAnalysis.WormData.ImageToPrint);
-			//experiment->exp.videoWriter << experiment->exp.wormAnalysis.WormData.ImageToPrint;
-			TICTOC::timer().toc("WriteFrameToVideo");
 			
 			
 			
@@ -494,7 +480,9 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			dataArray[12] = zaber->posY;                                           //Stage Position Y
 			//TICTOC::timer().toc("CreateReportProgressDataArray");
 
-			worker->ReportProgress( 0 , dataArray->Clone());
+			experiment->exp.dataManagement.dataBuffer.add(dataArray);
+
+			worker->ReportProgress(0, NULL);
 			//Thread::Sleep(1000);
 		}
 		TICTOC::timer().toc("SingleWormTrackLoop");

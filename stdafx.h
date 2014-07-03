@@ -19,7 +19,7 @@
 #include "WormAnalysis.h"
 #include "Zaber.h"
 #include "DataManagement.h"
-//#include "safe_queue.h"
+#include "safe_queue.h"
 #include "tictoc.h"
 
 //Standard header files:

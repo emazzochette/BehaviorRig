@@ -105,23 +105,30 @@ void DataManagement::SetUpWriteToDisk(const char* dirfilename, const char* outfi
 
 //int DataManagement::AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time){//, WriteOut* DataWriter){
 
-int DataManagement::AppendWormFrameToDisk(array<double>^ wormDataArray, double xPosition, double yPosition){//, double xStagePos, double yStagePos){
-
-	DataWriter.fs << "WormInfo" << "{" ;
+int DataManagement::AppendWormFrameToDisk(vector<double> wormDataArray, double xPosition, double yPosition, WormAnalysis::WormDataStructures wormData){//, double xStagePos, double yStagePos){
+	char buff1[50];
+	sprintf_s(buff1, "WormInfo %d", wormData.wormCount);
+	DataWriter.fs << buff1 << "{" ;
 	WriteDoubleToDisk("Time",  wormDataArray[0]);
-	DataWriter.fs << "Processed frame number" <<  (int)wormDataArray[1];
+	DataWriter.fs << "Processed frame number" << wormData.wormCount;
 	DataWriter.fs << "Camera frame number" <<  (int)wormDataArray[2];
-	DataWriter.fs << "Target" << "{" << "x" <<  (int)wormDataArray[3] << "y" <<  (int)wormDataArray[4] << "}";
-	DataWriter.fs << "Head" << "{" << "x" <<  (int)wormDataArray[5] << "y" <<  (int)wormDataArray[6] << "}";
-	DataWriter.fs << "Tail" << "{" << "x" <<  (int)wormDataArray[7] << "y" <<  (int)wormDataArray[8] << "}";
+	DataWriter.fs << "Target" << wormData.Target; //"{" << "x" <<  (int)wormDataArray[3] << "y" <<  (int)wormDataArray[4] << "}";
+	DataWriter.fs << "Head" << wormData.Head; //"{" << "x" <<  (int)wormDataArray[5] << "y" <<  (int)wormDataArray[6] << "}";
+	DataWriter.fs << "Tail" << wormData.Tail; //"{" << "x" <<  (int)wormDataArray[7] << "y" <<  (int)wormDataArray[8] << "}";
+	DataWriter.fs << "Skeleton" << "{";
+	char buff[50];
+	for (int i = 0; i < wormData.Skeleton.size(); i++) {
+		sprintf_s(buff, "Point %d", i);
+		DataWriter.fs << buff << wormData.Skeleton[i];
+	}
+	DataWriter.fs << "}";
 	DataWriter.fs << "Stage Movement" << "{" << "x-axis" << (int)wormDataArray[9] << "y-axis" << (int)wormDataArray[10] << "}";
-    DataWriter.fs << "Stage Position" << "{" << "x" << (int)wormDataArray[11] << "y" << (int)wormDataArray[12] << "}";
+    //DataWriter.fs << "Stage Position" << "{" << "x" << (int)wormDataArray[11] << "y" << (int)wormDataArray[12] << "}";
 	DataWriter.fs << "}";
 
 	return 0;
 
 }
-
 
 int DataManagement::WriteStringToDisk(string LineToWrite, string DataToWrite){
 	DataWriter.fs << LineToWrite << DataToWrite;

@@ -127,7 +127,7 @@ void Experiment::SetUpDataOutput(void){
 	//Set up video writer
 	Size frameSize = Size(1024*exp.imageScale, 768*exp.imageScale);
 	string FilenameTest = std::string(exp.dataManagement.DataWriter.videoFilename);
-	double FPS = 1;
+	double FPS = 2;
 	int codec = -1; 
 	exp.videoWriter.open(FilenameTest, codec, FPS, frameSize, true);
 	
@@ -163,81 +163,14 @@ int Experiment::WriteTimingDataToDisk(void){
  //   }
 	return 0;
 }
-void Experiment::WriteCurrentFrameData(array<double>^ wormDataArray, double xPosition, double yPosition){
-	exp.dataManagement.AppendWormFrameToDisk(wormDataArray, xPosition, yPosition); 
+void Experiment::WriteCurrentFrameData(vector<double> wormDataArray, double xPosition, double yPosition, WormAnalysis::WormDataStructures wormData){
+	exp.dataManagement.AppendWormFrameToDisk(wormDataArray, xPosition, yPosition, wormData); 
 
 }
 int Experiment::SetUpCamera(void){
 	exp.imageControl.StartCamera();
 	exp.imageControl.StartLive();
 	exp.imageControl.SetImageDimensions(exp.imageScale);
-	return 0;
-
-}
-int Experiment::trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
-	 //Abort the operation if the user has cancelled.
-	 //Note that a call to CancelAsync may have set
-	 //CancellationPending to true just after the 
-	 //last invocation of this method exits, so this
-	 //code will not have the oppotunity to set the 
-	 //DoWorkEventArgs.Cancel flag to true. This means
-	 //the RunWorkerCompletedEventArgs.Cancelled will
-	 //not be set to true in your RunWorkerCompleted
-	 //event handler. This is a race condition.
-	doublePoint LocalMoveStage;
-
-	array<double>^ dataArray = gcnew array<double>{1,2,3,4,5,6,7,8,9,10,11};
-	//int i =1;
-	for (int i=1; i<n+1; i++)
-	{
-	
-		if (worker->CancellationPending )
-		{
-			e->Cancel = true;
-		}
-		else
-		{
-		
-		//do some data output.
-		//exp.dataManagement.AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);
-		
-	
-			exp.imageControl.GetImage();
-			exp.wormAnalysis.WormImages.OriginalImage = exp.imageControl.img;
-			exp.wormAnalysis.FindWorm();
-			exp.wormAnalysis.DrawResult();
-			exp.videoWriter << exp.wormAnalysis.WormData.ImageToPrint;
-
-			exp.wormAnalysis.WormData.Target.x = exp.wormAnalysis.WormData.Head.x ;
-			exp.wormAnalysis.WormData.Target.y = exp.wormAnalysis.WormData.Head.y;
-			LocalMoveStage = DetermineStageMovement(exp.wormAnalysis.WormData.Target.x, exp.wormAnalysis.WormData.Target.y);
-				
-		/*	exp.wormAnalysis.WormData.Target.x = 2;
-			exp.wormAnalysis.WormData.Target.y = 3;
-			exp.wormAnalysis.WormData.Head.x = 44;
-			exp.wormAnalysis.WormData.Head.y = 55;*/
-			//exp.wormAnalysis.WormData.Tail.x = 666;
-			//exp.wormAnalysis.WormData.Tail.y = 777;
-
-			dataArray[0] = 0; //Time Stamp
-			dataArray[1] = i; //Processed Frame Count
-			dataArray[2] = exp.imageControl.frameCount; //Frame Number
-			dataArray[3] = (double)exp.wormAnalysis.WormData.Target.x; //Target Position X
-			dataArray[4] = (double)exp.wormAnalysis.WormData.Target.y;
-			dataArray[5] = (double)exp.wormAnalysis.WormData.Head.x;
-			dataArray[6] = (double)exp.wormAnalysis.WormData.Head.y;
-			dataArray[7] = (double)exp.wormAnalysis.WormData.Tail.x;
-			dataArray[8] = (double)exp.wormAnalysis.WormData.Tail.y;
-			dataArray[9] = LocalMoveStage.x;
-			dataArray[10] = LocalMoveStage.y;
-			
-
-			worker->ReportProgress( 0 , dataArray->Clone());
-			Thread::Sleep(1000);
-		}
-		
-		
-	}
 	return 0;
 
 }

@@ -10,41 +10,38 @@
 
 #ifndef _safe_queue_h
 #define _safe_queue_h
-#define _AFXDLL
 
+#include <windows.h>
 #include <queue>
-#include <afxmt.h>
 
 
 template <typename T> class safe_queue
 {
     std::queue<T> queue;
-    CMutex mtx;
-	CSingleLock lock(&mtx);
-    //std::condition_variable condv;
-    
+
 public:
+	HANDLE mtx;
     void add(T item) {
-        lock.Lock(INFINITE);
+        WaitForSingleObject(mtx, INFINITE);
         queue.push(item);
-        //condv.notify_all();
-        lock.Unlock();
+        ReleaseMutex(mtx);
     }
     
     T remove() {
-        lock.Lock(INFINITE);
+        WaitForSingleObject(mtx, INFINITE);
+		T item;
         if (!queue.empty()) {
-            T item = queue.front();
+            item = queue.front();
 			queue.pop();
         }
-		lock.Unlock();
+		ReleaseMutex(mtx);
         return item;
     }
     
     int size() {
-        lock.Lock(INFINITE);
+        WaitForSingleObject(mtx, INFINITE);
         int size = queue.size();
-        lock.Unlock();
+        ReleaseMutex(mtx);
         return size;
     }
 
