@@ -13,7 +13,7 @@
 #using <System.dll>
  
 // Sets duration to wait for when polling for available bytes to read
-#define SLEEP_DURATION_MS	5
+#define SLEEP_DURATION_MS	1
  
 // Some Binary message command numbers
 #define CMD_HOME	 	 	 	 	 1
