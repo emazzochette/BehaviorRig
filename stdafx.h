@@ -26,4 +26,5 @@
 #include <string>
 //#include <ctime>
 
-#include <atltypes.h>
+//#include <atltypes.h>
+#include <math.h>

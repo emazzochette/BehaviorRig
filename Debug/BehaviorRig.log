@@ -1,4 +1,4 @@
-﻿Build started 7/2/2014 9:57:51 PM.
+﻿Build started 7/21/2014 11:10:24 AM.
      1>Project "C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\BehaviorRig\BehaviorRig.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\BehaviorRig.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -6,24 +6,17 @@
        Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
        ClCompile:
          All outputs are up-to-date.
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Eileen Mazzochette\Documents\IC Imaging Control 3.3\classlib\include" /IC:\opencv\build\..\..\include\opencv /IC:\opencv\build\..\..\include\opencv2 /IC:\opencv\build\..\..\include /IC:\opencv\build\include /IC:\opencv\build\include\opencv2 /IC:\opencv\build\include\opencv /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _UNICODE /D UNICODE /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\BehaviorRig.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.dll" /analyze- /errorReport:prompt Zaber.cpp /clr:nostdlib 
-         Zaber.cpp
-     1>Zaber.cpp(203): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(214): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(407): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(412): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(417): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(422): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(438): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(443): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>Zaber.cpp(448): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\Eileen Mazzochette\Documents\IC Imaging Control 3.3\classlib\include" /IC:\opencv\build\..\..\include\opencv /IC:\opencv\build\..\..\include\opencv2 /IC:\opencv\build\..\..\include /IC:\opencv\build\include /IC:\opencv\build\include\opencv2 /IC:\opencv\build\include\opencv /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\BehaviorRig.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Core.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Xml.dll" /analyze- /errorReport:prompt BehaviorRig.cpp /clr:nostdlib 
+         BehaviorRig.cpp
+     1>c:\users\eileen mazzochette\documents\visual studio 2010\projects\behaviorrig\behaviorrig\BehaviorRigMainForm.h(446): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\eileen mazzochette\documents\visual studio 2010\projects\behaviorrig\behaviorrig\BehaviorRigMainForm.h(447): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
          All outputs are up-to-date.
        CoreResGen:
          No resources are out of date with respect to their source files. Skipping resource generation.
        ResourceCompile:
          All outputs are up-to-date.
        Link:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:C:\opencv\build\x86\vc10\bin /LIBPATH:"C:\Users\Eileen Mazzochette\Documents\IC Imaging Control 3.3\classlib\win32\debug" /LIBPATH:C:\opencv\build\x86\vc10\lib opencv_core249d.lib opencv_imgproc249d.lib opencv_highgui249d.lib opencv_ml249d.lib opencv_video249d.lib opencv_features2d249d.lib opencv_calib3d249d.lib opencv_objdetect249d.lib opencv_contrib249d.lib opencv_legacy249d.lib opencv_flann249d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /ASSEMBLYRESOURCE:Debug\BehaviorRig.BehaviorRigMainForm.resources /MANIFEST /ManifestFile:"Debug\BehaviorRig.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.pdb" /ASSEMBLYDEBUG /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"main" /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 Debug\app.res
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:C:\opencv\build\x86\vc10\bin /LIBPATH:"C:\Users\Eileen Mazzochette\Documents\IC Imaging Control 3.3\classlib\win32\debug" /LIBPATH:C:\opencv\build\x86\vc10\lib opencv_core249d.lib opencv_imgproc249d.lib opencv_highgui249d.lib opencv_ml249d.lib opencv_video249d.lib opencv_features2d249d.lib opencv_calib3d249d.lib opencv_objdetect249d.lib opencv_contrib249d.lib opencv_legacy249d.lib opencv_flann249d.lib /ASSEMBLYRESOURCE:Debug\BehaviorRig.BehaviorRigMainForm.resources /MANIFEST /ManifestFile:"Debug\BehaviorRig.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.pdb" /ASSEMBLYDEBUG /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"main" /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 Debug\app.res
          Debug\AssemblyInfo.obj
          Debug\BehaviorRig.obj
          Debug\DataManagement.obj
@@ -38,7 +31,7 @@
      1>DataManagement.obj : warning LNK4248: unresolved typeref token (01000022) for 'CvFileStorage'; image may not run
          BehaviorRig.vcxproj -> C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.exe
        Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.exe;#1" /manifest Debug\BehaviorRig.exe.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Eileen Mazzochette\Documents\Visual Studio 2010\Projects\BehaviorRig\Debug\BehaviorRig.exe;#1" /manifest Debug\BehaviorRig.exe.intermediate.manifest "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
        FinalizeBuildStatus:
          Deleting file "Debug\BehaviorRig.unsuccessfulbuild".
          Touching "Debug\BehaviorRig.lastbuildstate".
@@ -46,4 +39,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.00
+Time Elapsed 00:00:02.62

@@ -1,3 +1,5 @@
+#pragma once
+
 //
 //  safe_queue.h
 //
@@ -8,40 +10,38 @@
 //
 //
 
-#ifndef _safe_queue_h
-#define _safe_queue_h
-
-#include <windows.h>
 #include <queue>
-
 
 template <typename T> class safe_queue
 {
+private:
     std::queue<T> queue;
-
+    CRITICAL_SECTION CritSection;
+    CONDITION_VARIABLE ConditionVar;
+    
 public:
-	HANDLE mtx;
     void add(T item) {
-        WaitForSingleObject(mtx, INFINITE);
+        EnterCriticalSection(&CritSection);
         queue.push(item);
-        ReleaseMutex(mtx);
+        LeaveCriticalSection(&CritSection);
+        WakeAllConditionVariable(&ConditionVar);
     }
     
-    T remove() {
-        WaitForSingleObject(mtx, INFINITE);
-		T item;
-        if (!queue.empty()) {
-            item = queue.front();
-			queue.pop();
+    T get() {
+        EnterCriticalSection(&CritSection);
+        if (queue.empty()) {
+            SleepConditionVariableCS(&ConditionVar, &CritSection, INFINITE);
         }
-		ReleaseMutex(mtx);
+        T item = queue.front();
+        queue.pop();
+		LeaveCriticalSection(&CritSection);
         return item;
     }
     
     int size() {
-        WaitForSingleObject(mtx, INFINITE);
+        EnterCriticalSection(&CritSection);
         int size = queue.size();
-        ReleaseMutex(mtx);
+        LeaveCriticalSection(&CritSection);
         return size;
     }
 
@@ -49,5 +49,3 @@ public:
 		return (size() == 0);
 	}
 };
-
-#endif

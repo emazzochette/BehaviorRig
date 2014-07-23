@@ -29,8 +29,6 @@ public:
 		WriteOutStruct(void);
 	} DataWriter;
 
-
-	safe_queue<vector<double> > dataBuffer;
 	safe_queue<WormAnalysis::WormDataStructures> wormDataBuffer;
 
 	//DataManagement(void);
@@ -40,7 +38,7 @@ public:
 
 	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures,  WriteOut*);
 	//int AppendWormFrameToDisk(WormAnalysis::WormDataStructures WormData, int count, int frameNumber, double xStagePos, double yStagePos, double time);//, WriteOut* DataWriter);
-	int AppendWormFrameToDisk(vector<double>, double, double, WormAnalysis::WormDataStructures);
+	int AppendWormFrameToDisk(WormAnalysis::WormDataStructures);
 	int WriteStringToDisk(string, string);
 	int WriteDoubleToDisk(string, double);
 	int WritePointToDisk(string, Point);

@@ -34,19 +34,23 @@ public:
 	struct WormDataStructures{
 		Mat OriginalImageResize;
 		vector<vector<Point> > Contours;
-		Vector<Point> Worm;
+		vector<Point> Worm;
 		int TailIndex;
 		int HeadIndex;
-		vector<Point> Segments;// [500][2];
+		vector<Point> Segments;
 		bool FirstImageFlag;
 		Mat ImageToPrint;
-		vector<Point> Skeleton;// [50000];
+		vector<Point> Skeleton;
 		int NumberOfSegments;
 		Point Target;
 		Point Head;
 		Point Tail;
 		int wormCount;
 		int MaxContour;
+		double Time;
+		double XStageMovement;
+		double YStageMovement;
+		Point StagePosition;
 
 		WormDataStructures(void);
 	} WormData, PreviousWormData;
@@ -121,9 +125,11 @@ private:
 	void HeadTailCheck(void);
 	void WormSegmentation(void);
 	void WormSegmentation2(void);
+	void WormSegmentation3(void);
 	void FindSkeleton(void);
 	void addMidpointToSkeleton(Point);
 	Point FindTarget(double);
+	void WormAnalysis::drawCross(Mat *image, Point point);
 
 public:	
 	void FindWorm(void);

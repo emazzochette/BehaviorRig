@@ -105,7 +105,7 @@ class Experiment{
 	void DefineExpProperties(void);
 	void SetUpDataOutput(void);
 	int WriteTimingDataToDisk(void);
-	void WriteCurrentFrameData(vector<double>, double, double, WormAnalysis::WormDataStructures);
+	void WriteCurrentFrameData(WormAnalysis::WormDataStructures);
 	int SetUpCamera(void);
 	doublePoint DetermineStageMovement(double, double);
 	void EndExperiment(void);

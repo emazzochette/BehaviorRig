@@ -56,13 +56,11 @@ void WormAnalysis::WriteWormDataToFile(string FileName, WormDataStructures &Worm
 //the beginning.
 int WormAnalysis::boundCheck(int currentIndex, int maxIndex)
 {
-	if(currentIndex < 0){
+	if (currentIndex < 0){
         return maxIndex - abs(currentIndex);
-	}
-	else if (currentIndex > maxIndex-1){
+	} else if (currentIndex > maxIndex-1){
         return currentIndex - maxIndex;
-	}
-	else {
+	} else {
         return currentIndex;
 	}
 }
@@ -328,6 +326,7 @@ void WormAnalysis::WormSegmentation(void)
 		
 	}
 }
+
 void WormAnalysis::WormSegmentation2(void)
 {
 		//SEGMENTATION
@@ -353,10 +352,10 @@ void WormAnalysis::WormSegmentation2(void)
 	int count;
 	int breakCount = 0;
 	//int Segments [100][2];
-	
-	
+
+
 	//if(abs(CurrentLocation-TailIndex)<N)    
-	
+
 	//clear data from previous worm.
 	WormData.Segments.clear();
 
@@ -379,7 +378,7 @@ void WormAnalysis::WormSegmentation2(void)
 		WormVec1[0] = WormData.Worm[boundCheck(currentLocation+SegJump, numPoints)].x - WormData.Worm[boundCheck(currentLocation-SegJump, numPoints)].x;
 		WormVec1[1] = WormData.Worm[boundCheck(currentLocation+SegJump, numPoints)].y - WormData.Worm[boundCheck(currentLocation-SegJump, numPoints)].y;
 
-		
+
 		count = 0;
 		while(AngleDifference>THRESHOLD){
 
@@ -438,7 +437,7 @@ void WormAnalysis::WormSegmentation2(void)
 		i++;
 	}//end for loop over number of segments
 	WormData.NumberOfSegments = i;
-	
+
 	/*int j;
 	Scalar color(225, 225, 225);
 	for(j=1; j<i; j++){
@@ -447,70 +446,116 @@ void WormAnalysis::WormSegmentation2(void)
 	}*/
 }
 
+void WormAnalysis::WormSegmentation3(void)
+{
+	int numSegments = 50;
+	WormData.NumberOfSegments = numSegments;
+	int numPoints = WormData.Worm.size();
+
+	int sideLength1 = abs(WormData.HeadIndex - WormData.TailIndex);
+	int sideLength2 = numPoints - sideLength1;
+
+	double sideJump1 = (double)sideLength1/(double)(numSegments);
+	double weight1 = sideJump1 - floor(sideJump1);
+	sideJump1 = floor(sideJump1);
+	double random1; 
+
+	double sideJump2 = (double)sideLength2/(double)(numSegments);
+	double weight2 = sideJump2 - floor(sideJump2);
+	sideJump2 = floor(sideJump2);
+	double random2;
+
+
+	int direction1 = 1;
+	int direction2 = 1;
+	if (WormData.HeadIndex - WormData.TailIndex > 0 )
+		direction1 = -1;
+	else
+		direction2 = -1;
+
+
+	int currSegmentIndex1;
+	int currSegmentIndex2;
+	int prevSegmentIndex1 = WormData.HeadIndex;
+	int	prevSegmentIndex2 = WormData.HeadIndex;
+
+	for (int i = 0; i < numSegments; i++) {
+
+		random1 = rand() % 100 + 0;
+		if (random1/100.0 > weight1) {
+			sideJump1++;
+		}
+
+		//currSegmentIndex1 = prevSegmentIndex1 + sideJump1;
+		currSegmentIndex1 = boundCheck(prevSegmentIndex1 + direction1*sideJump1, numPoints);
+		//if (currSegmentIndex1 > numPoints - 1) {
+			//currSegmentIndex1 -= numPoints;
+		//}
+		prevSegmentIndex1 = currSegmentIndex1;
+
+
+		random2 = rand() % 100 + 0;
+		if (random2/100.0 > weight2) {
+			sideJump2++;
+		}
+		//currSegmentIndex2 = prevSegmentIndex2 - sideJump2;
+		currSegmentIndex2 = boundCheck(prevSegmentIndex2 + direction2*sideJump2, numPoints);
+		//if (currSegmentIndex2 < 0) {
+			//currSegmentIndex2 += numPoints;
+		//}
+		prevSegmentIndex2 = currSegmentIndex2;
+
+		WormData.Segments.push_back(Point(currSegmentIndex1, currSegmentIndex2));
+	}
+}
+
 void WormAnalysis::DrawResult(WormDataStructures *wormData)
 {
 	wormData->ImageToPrint = NULL;
 	
 	cvtColor(wormData->OriginalImageResize, wormData->ImageToPrint, CV_GRAY2RGB);
 	
-	//PRINT CONTOURS
-    //int idx = 0;
-	/*for( ; idx >= 0; idx = hierarchy[idx][0] )
-    {*/
+	Scalar green(0,255,0);
+	Scalar red(0,0,225);
+	Scalar blue(225,0,0);
 
-		Scalar color1(0,255,0);   
-		drawContours( wormData->ImageToPrint, wormData->Contours, wormData->MaxContour, color1, 2, 0, NULL, 0, Point(0,0) );
-    //}
-	
+	//PRINT CONTOURS
+	drawContours( wormData->ImageToPrint, wormData->Contours, wormData->MaxContour, green, 2, 0, NULL, 0, Point(0,0));
 
 	//Print cantilever
-	Scalar color(0,0,255);
-	circle(wormData->ImageToPrint, Point((int)(621*imageResizeScale), (int)(365*imageResizeScale)),5,color,2,8,0);
+	circle(wormData->ImageToPrint, Point((int)(621*imageResizeScale), (int)(365*imageResizeScale)), 15, green, 2, 8, 0);
 
 	//PRINT TAIL
-	
-	circle(wormData->ImageToPrint, wormData->Worm[wormData->TailIndex], 7, color, 2, 8, 0);
-
+	circle(wormData->ImageToPrint, wormData->Worm[wormData->TailIndex], 7, red, 2, 8, 0);
 
 	//PRINT HEAD
-	circle(wormData->ImageToPrint, wormData->Worm[wormData->HeadIndex], 10, color, 2, 8, 0);
-	/*if (!wormData.FirstImageFlag){
-		circle(wormData.ImageToPrint, PreviousWormData.Head, 5, color, 1, 8, 0);
-	}*/
+	circle(wormData->ImageToPrint, wormData->Worm[wormData->HeadIndex], 10, red, 2, 8, 0);
 
 	////PRINT SEGMENTS:
-	//Scalar color(225, 225, 225);
-	for(int j=1; j<wormData->NumberOfSegments; j++){
-		line(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], wormData->Worm[wormData->Segments[j].y], color, 1, 8, 0);
-		circle(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], 3, color, 1, 8, 0);
+	for(int j=1; j < wormData->NumberOfSegments; j++){
+		line(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], wormData->Worm[wormData->Segments[j].y], red, 1, 8, 0);
+		circle(wormData->ImageToPrint, wormData->Worm[wormData->Segments[j].x], 3, red, 1, 8, 0);
 	}
 	
 	
-	////PRINT SKELETON
-	//idx = 0;
-	////Scalar color( rand()&255, rand()&255, rand()&255 );
-	//	for( ; idx >= 0; idx = hierarchy[idx][0] )
- //   {
-	//	Scalar color(255,255,255);   
-	//	drawContours(wormData->ImageToPrint, wormData->Contours, idx, color, 0, 0, hierarchy, 0 );
- //   }
+	//PRINT SKELETON
+	for (int i = 0; i < wormData->Skeleton.size() - 1; i++) {
+		line(wormData->ImageToPrint, wormData->Skeleton[i], wormData->Skeleton[i+1], blue, 1, 8, 0);
+	}
 
 	//PRINT TARGET
-	circle(wormData->ImageToPrint, wormData->Target, 10, color, 1, 8, 0);
+	drawCross(&(wormData->ImageToPrint), wormData->Target);
 
 	char numstr[21];
-	sprintf_s(numstr, "Frame #: %d", wormData->wormCount);
-	putText(wormData->ImageToPrint, numstr, Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.75, color, 2, 8, false);  
+	sprintf_s(numstr, "Frame #%d", wormData->wormCount);
+	putText(wormData->ImageToPrint, numstr, Point(50, 50), FONT_HERSHEY_SIMPLEX, 0.75, red, 2, 8, false);  
 
-	////Print to Screen
-	/*namedWindow("Display window", CV_WINDOW_AUTOSIZE);
-	imshow("Display window", WormData.ImageToPrint);
-	cvWaitKey(3);*/
+}
 
-	//Write to disc
-	//imwrite(SaveFileName, WormData.ImageToPrint);
-	//videoWriter << WormData.ImageToPrint;
-
+void WormAnalysis::drawCross(Mat *image, Point pt) {
+	Scalar red(0, 0, 225);
+	line(*image, Point(pt.x - 5, pt.y + 5), Point(pt.x + 5, pt.y - 5), red, 2, 8, 0);
+	line(*image, Point(pt.x + 5, pt.y + 5), Point(pt.x - 5, pt.y - 5), red, 2, 8, 0);
 }
 
 //Highest Level Function:
@@ -576,7 +621,7 @@ void WormAnalysis::FindWorm(void)
 	//SEGMENTATION
 	// Perform the segmentation of the worm:
 	//WormSegmentation();
-	WormSegmentation2();
+	WormSegmentation3();
 	
 	//FIND SKELETON, TARGET
 	//Use the segments to find the skeleton of the worm:

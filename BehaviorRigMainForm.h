@@ -1,5 +1,15 @@
 #pragma once
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+   #ifndef DBG_NEW
+      #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+      #define new DBG_NEW
+   #endif
+#endif  // _DEBUG
 
 namespace BehaviorRig {
 
@@ -18,10 +28,12 @@ namespace BehaviorRig {
 	public:
 		BehaviorRigMainForm(void)
 		{
-			InitializeComponent();
-
 			zaber = gcnew Zaber;
 			experiment = new Experiment;
+			
+			InitializeComponent();
+
+			
 		}
 
 	protected:
@@ -32,6 +44,8 @@ namespace BehaviorRig {
 		{
 			if (components)
 			{
+				delete zaber;
+				delete experiment;
 				delete components;
 			}
 		}
@@ -256,7 +270,7 @@ private:
 		} else return; //handle error
 
 		//Start the asynchronous operation
-		backgroundWorker1->RunWorkerAsync(150);
+		backgroundWorker1->RunWorkerAsync(3);
 	}
 
 	System::Void stopTrackButton_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -281,41 +295,15 @@ private:
 	}
 
 private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
+			trackerStatusLabel->Text = System::Convert::ToString(e->ProgressPercentage);
+			 if (e->ProgressPercentage > 4) {
+				 WormAnalysis::WormDataStructures wormData = experiment->exp.dataManagement.wormDataBuffer.get();
+				  //Deal with data:
+				 experiment->WriteCurrentFrameData(wormData);
+				 experiment->exp.wormAnalysis.DrawResult(&wormData);
+				 experiment->exp.videoWriter << wormData.ImageToPrint;
 
-			WormAnalysis::WormDataStructures wormData = experiment->exp.dataManagement.wormDataBuffer.remove();
-
-			 vector<double> testArr = experiment->exp.dataManagement.dataBuffer.remove();
-			 trackerStatusLabel->Text = System::Convert::ToString( testArr[1]); 
-
-			 //Deal with data:
-			 experiment->WriteCurrentFrameData(testArr, zaber->posX, zaber->posY, wormData);
-			
-			 //Start writing video frames to buffer if number of processed frames is more than 4
-			 /*if (testArr[1]>4){
-			 	 experiment->exp.videoWriter << experiment->exp.dataManagement.videoBuffer.back();
-			 	 experiment->exp.dataManagement.videoBuffer.pop_back();
-			 }*/
-
-		
-
-			 experiment->exp.wormAnalysis.DrawResult(&wormData);
-
-			 experiment->exp.videoWriter << wormData.ImageToPrint;
-
-		
-
-			 experiment->exp.imageControl.grabber.getOverlay()->fill(experiment->exp.imageControl.grabber.getOverlay()->getDropOutColor());
-			 RECT rectangle;
-			 rectangle.left = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.x/experiment->exp.imageScale-5;
-			 rectangle.right = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.x/experiment->exp.imageScale+5;
-			 rectangle.top = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.y/experiment->exp.imageScale-5;
-			 rectangle.bottom = (int)experiment->exp.wormAnalysis.PreviousWormData.Target.y/experiment->exp.imageScale+5; 
-			 experiment->exp.imageControl.grabber.getOverlay()->drawFrameEllipse( RGB(255,0,0), rectangle);
-				
-			
-			
-
-				
+			 }
 		 }
 private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  sender, System::ComponentModel::RunWorkerCompletedEventArgs^  e) {
 			  //First, handle the case where an exception is thrown
@@ -338,13 +326,9 @@ private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  send
 			 {
 				 //Finally, handle the case where the operation succeeded.
 				 trackerStatusLabel->Text = e->Result->ToString();
+				 _CrtDumpMemoryLeaks();
 			 }
 
-			  //finish writing frames to video:
-			 // for (std::vector<Mat>::iterator it = experiment->exp.dataManagement.videoBuffer.end(); it < experiment->exp.dataManagement.videoBuffer.begin(); it-- ){
-				//experiment->exp.videoWriter << *it;
-				////experiment->exp.dataManagement.videoBuffer.pop_back();
-			 // }
 			  experiment->EndExperiment();
 			  //Enable the start button
 			  startTrackButton->Enabled = true;
@@ -367,26 +351,24 @@ private: System::Void setUpExperimentButton_Click(System::Object^  sender, Syste
 				experiment->SetUpCamera();
 				experiment->DefineExpProperties();
 				experiment->SetUpDataOutput();
-				experiment->exp.dataManagement.wormDataBuffer.mtx = CreateMutex(NULL, FALSE, NULL);
-				experiment->exp.dataManagement.dataBuffer.mtx = CreateMutex(NULL, FALSE, NULL);
 			}
 		 }
 
 private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
-			  //Abort the operation if the user has cancelled.
-	 //Note that a call to CancelAsync may have set
-	 //CancellationPending to true just after the 
-	 //last invocation of this method exits, so this
-	 //code will not have the oppotunity to set the 
-	 //DoWorkEventArgs.Cancel flag to true. This means
-	 //the RunWorkerCompletedEventArgs.Cancelled will
-	 //not be set to true in your RunWorkerCompleted
-	 //event handler. This is a race condition.
+	//Abort the operation if the user has cancelled.
+	//Note that a call to CancelAsync may have set
+	//CancellationPending to true just after the 
+	//last invocation of this method exits, so this
+	//code will not have the oppotunity to set the 
+	//DoWorkEventArgs.Cancel flag to true. This means
+	//the RunWorkerCompletedEventArgs.Cancelled will
+	//not be set to true in your RunWorkerCompleted
+	//event handler. This is a race condition.
 	Experiment::doublePoint LocalMoveStage;
-	vector<double> dataArray (13, 0);
+	//vector<double> dataArray (13, 0);
 	
 	
-	double time;
+	//double time;
 	clock_t start = clock();
 	
 
@@ -431,7 +413,7 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 				return -1;
 			}
 			
-			time = (double)(((float)(std::clock() - start))/CLOCKS_PER_SEC);
+			//time = (double)(((float)(clock() - start))/CLOCKS_PER_SEC);
 			
 			TICTOC::timer().tic("FindWorm");
 			experiment->exp.wormAnalysis.FindWorm();
@@ -446,10 +428,9 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			LocalMoveStage = experiment->DetermineStageMovement(experiment->exp.wormAnalysis.WormData.Target.x, experiment->exp.wormAnalysis.WormData.Target.y);
 			//TICTOC::timer().toc("CalculateStageMovement");
 			TICTOC::timer().tic("StageMovementCommand");
-			zaber->moveStageRelative(LocalMoveStage.x,  LocalMoveStage.y);
+			zaber->moveStageRelative(LocalMoveStage.x, LocalMoveStage.y);
 			TICTOC::timer().toc("StageMovementCommand");
 		
-			experiment->exp.dataManagement.wormDataBuffer.add(experiment->exp.wormAnalysis.WormData);
 
 			/*TICTOC::timer().tic("DrawingResultForVideo");
 			experiment->exp.wormAnalysis.DrawResult(experiment->exp.wormAnalysis.WormData);
@@ -459,30 +440,17 @@ private: int trackWorm(int n, BackgroundWorker^ worker, DoWorkEventArgs ^ e){
 			//experiment->exp.wormAnalysis.ShowImage(experiment->exp.wormAnalysis.WormData.ImageToPrint);
 			
 			
-			
-			
-			
-		
+			experiment->exp.wormAnalysis.WormData.Time = (double)(((float)(clock() - start))/CLOCKS_PER_SEC);
+			experiment->exp.wormAnalysis.WormData.XStageMovement = LocalMoveStage.x;
+			experiment->exp.wormAnalysis.WormData.YStageMovement = LocalMoveStage.y;
+			experiment->exp.wormAnalysis.WormData.StagePosition.x = zaber->posX;
+			experiment->exp.wormAnalysis.WormData.StagePosition.y = zaber->posY;
 
-			//TICTOC::timer().tic("CreateReportProgressDataArray");
-			dataArray[0] = time;                                                      //Time Stamp
-			dataArray[1] = i;                                                      //Processed Frame Count
-			dataArray[2] = experiment->exp.imageControl.frameCount;                //Frame Number
-			dataArray[3] = (double)experiment->exp.wormAnalysis.WormData.Target.x; //Target Position X
-			dataArray[4] = (double)experiment->exp.wormAnalysis.WormData.Target.y; //Target Position Y
-			dataArray[5] = (double)experiment->exp.wormAnalysis.WormData.Head.x;   //Head Position X
-			dataArray[6] = (double)experiment->exp.wormAnalysis.WormData.Head.y;   //Head Position Y
-			dataArray[7] = (double)experiment->exp.wormAnalysis.WormData.Tail.x;   //Tail Position X
-			dataArray[8] = (double)experiment->exp.wormAnalysis.WormData.Tail.y;   //Tail Position Y
-			dataArray[9] = LocalMoveStage.x;                                       //Stage X-Movement
-			dataArray[10] = LocalMoveStage.y;                                      //Stage Y-Movement
-			dataArray[11] = zaber->posX;                                           //Stage Position X
-			dataArray[12] = zaber->posY;                                           //Stage Position Y
-			//TICTOC::timer().toc("CreateReportProgressDataArray");
+			experiment->exp.dataManagement.wormDataBuffer.add(experiment->exp.wormAnalysis.WormData);
 
-			experiment->exp.dataManagement.dataBuffer.add(dataArray);
 
-			worker->ReportProgress(0, NULL);
+
+			worker->ReportProgress(i);
 			//Thread::Sleep(1000);
 		}
 		TICTOC::timer().toc("SingleWormTrackLoop");

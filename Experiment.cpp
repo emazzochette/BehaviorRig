@@ -163,8 +163,8 @@ int Experiment::WriteTimingDataToDisk(void){
  //   }
 	return 0;
 }
-void Experiment::WriteCurrentFrameData(vector<double> wormDataArray, double xPosition, double yPosition, WormAnalysis::WormDataStructures wormData){
-	exp.dataManagement.AppendWormFrameToDisk(wormDataArray, xPosition, yPosition, wormData); 
+void Experiment::WriteCurrentFrameData(WormAnalysis::WormDataStructures wormData){
+	exp.dataManagement.AppendWormFrameToDisk(wormData); 
 
 }
 int Experiment::SetUpCamera(void){

@@ -34,11 +34,11 @@ void ImageControl::StartCamera(void)
 		//grabber.setVideoFormat("Y800 (96x96-512x384) [Binning 2x]");
         
 		
-		/*long val = grabber.getProperty(CameraControl_Exposure);
+		long val = grabber.getProperty(CameraControl_Exposure);
 		tsPropertyRange ExposureRange = grabber.getPropertyRange(CameraControl_Exposure);
 		grabber.setProperty(CameraControl_Exposure, false);
-		long ExposureValue = -6;
-		grabber.setProperty(CameraControl_Exposure,ExposureValue);*/
+		long ExposureValue = -8;
+		grabber.setProperty(CameraControl_Exposure,ExposureValue);
 		
 		//enable overlay for camera.
 		grabber.getOverlay()->setEnable(true);

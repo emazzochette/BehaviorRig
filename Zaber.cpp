@@ -197,7 +197,7 @@ void Zaber::moveStageRelative(double distanceX, double distanceY)//, char* unit)
 	/*distance = data;
 	posY = convertFromMicrosteps(distance, unitMove);
 */
-
+	/*
 	TICTOC::timer().tic("StageMovementWaitTwoDevicesCommand");
 	 WaitForReplyEitherDevice(1, CMD_MOVE_RELATIVE, 2, CMD_MOVE_RELATIVE);  // wait for either reply
     distance = convertFromMicrosteps(data, unitMove);          // find final position
@@ -221,6 +221,7 @@ void Zaber::moveStageRelative(double distanceX, double distanceY)//, char* unit)
         posY = distance;
     }
 	TICTOC::timer().toc("StageMovementWaitTwoDevicesCommand");
+*/
 
 	////Report stage position
 	//TICTOC::timer().tic("StageMovementGetStagePosition");
